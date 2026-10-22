@@ -5,9 +5,7 @@ class SummaryCard extends StatelessWidget {
   final String value;
   final String? subtitle;
   final IconData icon;
-  final Color iconBackgroundColor;
-  final Color iconColor;
-  final Widget? trailing;
+  final Gradient gradient;
   final VoidCallback? onTap;
 
   const SummaryCard({
@@ -16,86 +14,90 @@ class SummaryCard extends StatelessWidget {
     required this.value,
     this.subtitle,
     required this.icon,
-    this.iconBackgroundColor = CupertinoColors.systemBlue,
-    this.iconColor = CupertinoColors.white,
-    this.trailing,
+    required this.gradient,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
-    final labelColor = CupertinoColors.label.resolveFrom(context);
-    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
+        height: 110,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(12),
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0x33FFFFFF),
+            width: 0.8,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 16,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Top Row: Icon on start, big bold number on end
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: iconBackgroundColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      icon,
-                      size: 18,
-                      color: iconColor,
-                    ),
+                Icon(
+                  icon,
+                  size: 28,
+                  color: CupertinoColors.white,
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const Spacer(),
-                ?trailing,
               ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: labelColor,
-                letterSpacing: -0.4,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: secondaryColor,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 2),
-              Text(
-                subtitle!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: secondaryColor,
+
+            // Bottom Labels
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white,
+                    letterSpacing: -0.3,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xD9FFFFFF),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
       ),

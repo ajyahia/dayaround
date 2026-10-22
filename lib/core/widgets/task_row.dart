@@ -9,6 +9,7 @@ class TaskRow extends StatefulWidget {
   final int? durationMinutes;
   final bool isDone;
   final Color blockColor;
+  final String? blockLabel;
   final ValueChanged<bool>? onToggle;
   final VoidCallback? onTap;
   final VoidCallback? onInfoTap;
@@ -21,6 +22,7 @@ class TaskRow extends StatefulWidget {
     this.durationMinutes,
     required this.isDone,
     required this.blockColor,
+    this.blockLabel,
     this.onToggle,
     this.onTap,
     this.onInfoTap,
@@ -43,12 +45,12 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
     );
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.82)
+        tween: Tween<double>(begin: 1.0, end: 0.80)
             .chain(CurveTween(curve: Curves.easeOut)),
         weight: 40,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.82, end: 1.0)
+        tween: Tween<double>(begin: 0.80, end: 1.0)
             .chain(CurveTween(curve: Curves.elasticOut)),
         weight: 60,
       ),
@@ -77,21 +79,21 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
       onTap: widget.onTap ?? _handleToggle,
       behavior: HitTestBehavior.opaque,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48),
+        constraints: const BoxConstraints(minHeight: 52),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Checkbox button with spring animation
+              // Circle checkbox (Image 1 style)
               GestureDetector(
                 onTap: _handleToggle,
                 behavior: HitTestBehavior.opaque,
                 child: ScaleTransition(
                   scale: _scaleAnimation,
                   child: Container(
-                    width: 22,
-                    height: 22,
+                    width: 23,
+                    height: 23,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: widget.isDone ? widget.blockColor : CupertinoColors.transparent,
@@ -99,7 +101,7 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                           ? null
                           : Border.all(
                               color: uncheckedBorder,
-                              width: 1.8,
+                              width: 2.0,
                             ),
                     ),
                     child: widget.isDone
@@ -114,9 +116,9 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 13),
 
-              // Title, notes, and duration
+              // Title & Subtitle line (Image 1 style)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +128,7 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                       widget.title,
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                         color: widget.isDone ? secondaryColor : labelColor,
                         decoration: widget.isDone
                             ? TextDecoration.lineThrough
@@ -136,54 +138,77 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (widget.notes != null && widget.notes!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      DirectionalText(
-                        widget.notes!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: secondaryColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+
+                    // Subtitle metadata line (Image 1: tag, duration, notes)
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        if (widget.blockLabel != null) ...[
+                          Text(
+                            widget.blockLabel!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: widget.blockColor,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        if (widget.durationMinutes != null) ...[
+                          Icon(
+                            CupertinoIcons.clock,
+                            size: 13,
+                            color: CupertinoColors.systemRed.resolveFrom(context),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            '${widget.durationMinutes} د',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: CupertinoColors.systemRed.resolveFrom(context),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        if (widget.notes != null && widget.notes!.trim().isNotEmpty) ...[
+                          Expanded(
+                            child: DirectionalText(
+                              widget.notes!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: secondaryColor,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),
 
-              // Duration badge
-              if (widget.durationMinutes != null) ...[
-                const SizedBox(width: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      CupertinoIcons.clock,
-                      size: 13,
-                      color: secondaryColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${widget.durationMinutes} د',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: secondaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-
-              // Info button if provided
+              // Info (i) button
               if (widget.onInfoTap != null) ...[
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: widget.onInfoTap,
-                  child: Icon(
-                    CupertinoIcons.info_circle,
-                    size: 20,
-                    color: CupertinoColors.systemBlue.resolveFrom(context),
+                  child: Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: CupertinoColors.systemBlue.withValues(alpha: 0.12),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        CupertinoIcons.info,
+                        size: 15,
+                        color: CupertinoColors.systemBlue,
+                      ),
+                    ),
                   ),
                 ),
               ],

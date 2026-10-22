@@ -23,9 +23,26 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeModeProvider);
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
     final footerColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+
+    final cardDecoration = BoxDecoration(
+      color: cardBg,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: isDark ? const Color(0x22FFFFFF) : const Color(0x18000000),
+        width: 0.6,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: isDark ? const Color(0x33000000) : const Color(0x0A000000),
+          blurRadius: 12,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    );
 
     return CupertinoPageScaffold(
       child: CustomScrollView(
@@ -41,10 +58,10 @@ class SettingsScreen extends ConsumerWidget {
                   // Section 1: Appearance
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        color: cardBg,
+                    child: Container(
+                      decoration: cardDecoration,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
                         child: SettingsRow(
                           icon: CupertinoIcons.circle_righthalf_fill,
                           iconBackgroundColor: CupertinoColors.systemBlue,
@@ -67,10 +84,10 @@ class SettingsScreen extends ConsumerWidget {
                   // Section 2: Prayer & Planner Configuration
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        color: cardBg,
+                    child: Container(
+                      decoration: cardDecoration,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
                         child: Column(
                           children: [
                             SettingsRow(

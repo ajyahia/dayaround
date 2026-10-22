@@ -26,16 +26,17 @@ class AppSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final sectionBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Header (Reminders style)
+          // Section Header (Reminders style with block identity)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
             child: Row(
@@ -75,7 +76,7 @@ class AppSection extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: blockColor.withValues(alpha: 0.15),
+                      color: blockColor.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: blockColor.withValues(alpha: 0.4),
@@ -126,18 +127,32 @@ class AppSection extends StatelessWidget {
             ),
           ),
 
-          // Inset Grouped Card
+          // Inset Grouped Glass Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
+            child: Container(
+              decoration: BoxDecoration(
                 color: sectionBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? const Color(0x22FFFFFF) : const Color(0x18000000),
+                  width: 0.6,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark ? const Color(0x33000000) : const Color(0x0A000000),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Column(
                   children: [
                     if (children.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         child: Center(
                           child: Text(
                             'لا توجد مهام',
@@ -153,7 +168,7 @@ class AppSection extends StatelessWidget {
                         children[i],
                         if (i < children.length - 1 || onAddNewTask != null)
                           Padding(
-                            padding: const EdgeInsetsDirectional.only(start: 48),
+                            padding: const EdgeInsetsDirectional.only(start: 52),
                             child: Container(
                               height: 0.5,
                               color: separatorColor,
@@ -161,27 +176,42 @@ class AppSection extends StatelessWidget {
                           ),
                       ],
 
-                    // Inline add task row
+                    // Dashed circle inline add row (Image 1 style)
                     if (onAddNewTask != null)
                       GestureDetector(
                         onTap: onAddNewTask,
                         behavior: HitTestBehavior.opaque,
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 44),
+                          constraints: const BoxConstraints(minHeight: 46),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             child: Row(
                               children: [
-                                Icon(
-                                  CupertinoIcons.plus,
-                                  size: 18,
-                                  color: secondaryColor,
+                                // Dashed circle icon
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: secondaryColor.withValues(alpha: 0.5),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      CupertinoIcons.plus,
+                                      size: 13,
+                                      color: secondaryColor,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 13),
                                 Text(
                                   'مهمة جديدة',
                                   style: TextStyle(
                                     fontSize: 16,
+                                    fontWeight: FontWeight.normal,
                                     color: secondaryColor,
                                   ),
                                 ),

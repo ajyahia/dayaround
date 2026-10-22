@@ -10,6 +10,7 @@ class AppearanceSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final currentMode = ref.watch(themeModeProvider);
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
@@ -32,10 +33,24 @@ class AppearanceSettingsScreen extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
+              child: Container(
+                decoration: BoxDecoration(
                   color: cardBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? const Color(0x22FFFFFF) : const Color(0x18000000),
+                    width: 0.6,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark ? const Color(0x33000000) : const Color(0x0A000000),
+                      blurRadius: 12,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
                   child: Column(
                     children: [
                       for (int i = 0; i < options.length; i++) ...[
@@ -45,7 +60,7 @@ class AppearanceSettingsScreen extends ConsumerWidget {
                           },
                           behavior: HitTestBehavior.opaque,
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(minHeight: 46),
+                            constraints: const BoxConstraints(minHeight: 48),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               child: Row(
