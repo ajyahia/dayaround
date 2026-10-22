@@ -32,6 +32,10 @@
   "@themeDark": {
     "description": "خيار المظهر الداكن"
   },
+  "appearanceFooter": "يحدد المظهر الوضع الفاتح أو الداكن للتطبيق، أو يتبع إعدادات جهازك تلقائياً.",
+  "@appearanceFooter": {
+    "description": "وصف خيارات المظهر"
+  },
   "todayPlaceholder": "جدول اليوم سيظهر هنا",
   "@todayPlaceholder": {
     "description": "نص تجريبي لتبويب اليوم"
@@ -39,5 +43,77 @@
   "weekPlaceholder": "عرض الأسبوع سيظهر هنا",
   "@weekPlaceholder": {
     "description": "نص تجريبي لتبويب الأسبوع"
+  },
+  "nextPrayer": "الصلاة القادمة",
+  "@nextPrayer": {
+    "description": "عنوان بطاقة الصلاة القادمة"
+  },
+  "todayTasks": "مهام اليوم",
+  "@todayTasks": {
+    "description": "عنوان بطاقة مهام اليوم"
+  },
+  "newTask": "مهمة جديدة",
+  "@newTask": {
+    "description": "زر إضافة مهمة جديدة"
+  },
+  "noTasks": "لا توجد مهام",
+  "@noTasks": {
+    "description": "نص الحالة الفارغة للكتلة"
+  },
+  "now": "الآن",
+  "@now": {
+    "description": "شارة الكتلة الحالية"
+  },
+  "minShort": "د",
+  "@minShort": {
+    "description": "اختصار دقيقة"
+  },
+  "soon": "قريبًا",
+  "@soon": {
+    "description": "قريباً للميزات القادمة"
+  },
+  "privacyNote": "كل بياناتك محفوظة على جهازك فقط.",
+  "@privacyNote": {
+    "description": "ملاحظة الخصوصية في الإعدادات"
+  },
+  "location": "الموقع",
+  "@location": {
+    "description": "إعداد الموقع"
+  },
+  "calcMethod": "طريقة الحساب",
+  "@calcMethod": {
+    "description": "إعداد طريقة حساب أوقات الصلاة"
+  },
+  "asrMadhab": "مذهب العصر",
+  "@asrMadhab": {
+    "description": "إعداد مذهب حساب صلاة العصر"
+  },
+  "weekStart": "بداية الأسبوع",
+  "@weekStart": {
+    "description": "إعداد يوم بداية الأسبوع"
+  },
+  "blockBeforeFajr": "قبل الفجر",
+  "@blockBeforeFajr": {
+    "description": "اسم كتلة قبل الفجر"
+  },
+  "blockAfterFajr": "بعد الفجر",
+  "@blockAfterFajr": {
+    "description": "اسم كتلة بعد الفجر"
+  },
+  "blockAfterDhuhr": "بعد الظهر",
+  "@blockAfterDhuhr": {
+    "description": "اسم كتلة بعد الظهر"
+  },
+  "blockAfterAsr": "بعد العصر",
+  "@blockAfterAsr": {
+    "description": "اسم كتلة بعد العصر"
+  },
+  "blockAfterMaghrib": "بعد المغرب",
+  "@blockAfterMaghrib": {
+    "description": "اسم كتلة بعد المغرب"
+  },
+  "blockAfterIsha": "بعد العشاء",
+  "@blockAfterIsha": {
+    "description": "اسم كتلة بعد العشاء"
   }
 }

@@ -10,9 +10,19 @@ class HomeScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final tabBarBg = CupertinoColors.systemBackground.resolveFrom(context).withValues(alpha: 0.92);
 
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
+        backgroundColor: tabBarBg,
+        activeColor: CupertinoColors.systemBlue,
+        inactiveColor: CupertinoColors.systemGrey,
+        border: Border(
+          top: BorderSide(
+            color: CupertinoColors.separator.resolveFrom(context),
+            width: 0.5,
+          ),
+        ),
         items: [
           BottomNavigationBarItem(
             icon: const Icon(CupertinoIcons.sun_max),
@@ -21,11 +31,12 @@ class HomeScaffold extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: const Icon(CupertinoIcons.calendar),
+            activeIcon: const Icon(CupertinoIcons.calendar_today),
             label: l10n.weekTab,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(CupertinoIcons.settings),
-            activeIcon: const Icon(CupertinoIcons.settings_solid),
+            icon: const Icon(CupertinoIcons.gear),
+            activeIcon: const Icon(CupertinoIcons.gear_solid),
             label: l10n.settingsTab,
           ),
         ],

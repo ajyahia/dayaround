@@ -142,6 +142,12 @@ abstract class AppLocalizations {
   /// **'داكن'**
   String get themeDark;
 
+  /// وصف خيارات المظهر
+  ///
+  /// In ar, this message translates to:
+  /// **'يحدد المظهر الوضع الفاتح أو الداكن للتطبيق، أو يتبع إعدادات جهازك تلقائياً.'**
+  String get appearanceFooter;
+
   /// نص تجريبي لتبويب اليوم
   ///
   /// In ar, this message translates to:
@@ -153,6 +159,114 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'عرض الأسبوع سيظهر هنا'**
   String get weekPlaceholder;
+
+  /// عنوان بطاقة الصلاة القادمة
+  ///
+  /// In ar, this message translates to:
+  /// **'الصلاة القادمة'**
+  String get nextPrayer;
+
+  /// عنوان بطاقة مهام اليوم
+  ///
+  /// In ar, this message translates to:
+  /// **'مهام اليوم'**
+  String get todayTasks;
+
+  /// زر إضافة مهمة جديدة
+  ///
+  /// In ar, this message translates to:
+  /// **'مهمة جديدة'**
+  String get newTask;
+
+  /// نص الحالة الفارغة للكتلة
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد مهام'**
+  String get noTasks;
+
+  /// شارة الكتلة الحالية
+  ///
+  /// In ar, this message translates to:
+  /// **'الآن'**
+  String get now;
+
+  /// اختصار دقيقة
+  ///
+  /// In ar, this message translates to:
+  /// **'د'**
+  String get minShort;
+
+  /// قريباً للميزات القادمة
+  ///
+  /// In ar, this message translates to:
+  /// **'قريبًا'**
+  String get soon;
+
+  /// ملاحظة الخصوصية في الإعدادات
+  ///
+  /// In ar, this message translates to:
+  /// **'كل بياناتك محفوظة على جهازك فقط.'**
+  String get privacyNote;
+
+  /// إعداد الموقع
+  ///
+  /// In ar, this message translates to:
+  /// **'الموقع'**
+  String get location;
+
+  /// إعداد طريقة حساب أوقات الصلاة
+  ///
+  /// In ar, this message translates to:
+  /// **'طريقة الحساب'**
+  String get calcMethod;
+
+  /// إعداد مذهب حساب صلاة العصر
+  ///
+  /// In ar, this message translates to:
+  /// **'مذهب العصر'**
+  String get asrMadhab;
+
+  /// إعداد يوم بداية الأسبوع
+  ///
+  /// In ar, this message translates to:
+  /// **'بداية الأسبوع'**
+  String get weekStart;
+
+  /// اسم كتلة قبل الفجر
+  ///
+  /// In ar, this message translates to:
+  /// **'قبل الفجر'**
+  String get blockBeforeFajr;
+
+  /// اسم كتلة بعد الفجر
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد الفجر'**
+  String get blockAfterFajr;
+
+  /// اسم كتلة بعد الظهر
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد الظهر'**
+  String get blockAfterDhuhr;
+
+  /// اسم كتلة بعد العصر
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد العصر'**
+  String get blockAfterAsr;
+
+  /// اسم كتلة بعد المغرب
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد المغرب'**
+  String get blockAfterMaghrib;
+
+  /// اسم كتلة بعد العشاء
+  ///
+  /// In ar, this message translates to:
+  /// **'بعد العشاء'**
+  String get blockAfterIsha;
 }
 
 class _AppLocalizationsDelegate

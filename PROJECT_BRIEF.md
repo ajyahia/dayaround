@@ -1,5 +1,7 @@
 # PROJECT_BRIEF.md
 
+Visual design rules live in DESIGN.md and override any design detail here.
+
 ## What we are building
 "Jimy" (working name): an iOS-first Flutter app for planning the week and the day around the five Islamic prayer times. It is NOT a generic to-do list. Every day is split into time blocks bounded by prayer times, and every task lives inside a specific day + block.
 
