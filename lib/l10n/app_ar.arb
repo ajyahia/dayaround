@@ -1,0 +1,43 @@
+{
+  "@@locale": "ar",
+  "appTitle": "جيمي",
+  "@appTitle": {
+    "description": "اسم التطبيق"
+  },
+  "todayTab": "اليوم",
+  "@todayTab": {
+    "description": "عنوان تبويب اليوم"
+  },
+  "weekTab": "الأسبوع",
+  "@weekTab": {
+    "description": "عنوان تبويب الأسبوع"
+  },
+  "settingsTab": "الإعدادات",
+  "@settingsTab": {
+    "description": "عنوان تبويب الإعدادات"
+  },
+  "appearance": "المظهر",
+  "@appearance": {
+    "description": "عنوان خيار المظهر في الإعدادات"
+  },
+  "themeSystem": "تلقائي",
+  "@themeSystem": {
+    "description": "خيار مظهر النظام التلقائي"
+  },
+  "themeLight": "فاتح",
+  "@themeLight": {
+    "description": "خيار المظهر الفاتح"
+  },
+  "themeDark": "داكن",
+  "@themeDark": {
+    "description": "خيار المظهر الداكن"
+  },
+  "todayPlaceholder": "جدول اليوم سيظهر هنا",
+  "@todayPlaceholder": {
+    "description": "نص تجريبي لتبويب اليوم"
+  },
+  "weekPlaceholder": "عرض الأسبوع سيظهر هنا",
+  "@weekPlaceholder": {
+    "description": "نص تجريبي لتبويب الأسبوع"
+  }
+}

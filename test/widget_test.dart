@@ -1,30 +1,45 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:jimy/core/theme/app_theme.dart';
 import 'package:jimy/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('App shell renders with 3 tabs and switches to settings', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: JimyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify initial tab (Today / اليوم) is visible
+    expect(find.text('اليوم'), findsWidgets);
+    expect(find.text('الأسبوع'), findsOneWidget);
+    expect(find.text('الإعدادات'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Tap on Settings tab
+    await tester.tap(find.text('الإعدادات'));
+    await tester.pumpAndSettle();
+
+    // Verify settings content
+    expect(find.text('المظهر'), findsOneWidget);
+    expect(find.text('تلقائي'), findsOneWidget);
+    expect(find.text('فاتح'), findsOneWidget);
+    expect(find.text('داكن'), findsOneWidget);
+
+    // Tap on dark mode segment
+    await tester.tap(find.text('داكن'));
+    await tester.pumpAndSettle();
+
+    final segmentedControl = tester.widget<CupertinoSlidingSegmentedControl<AppThemeMode>>(
+      find.byType(CupertinoSlidingSegmentedControl<AppThemeMode>),
+    );
+    expect(segmentedControl.groupValue, AppThemeMode.dark);
   });
 }
