@@ -98,156 +98,110 @@ class _TodayScreenState extends State<TodayScreen> {
     final l10n = AppLocalizations.of(context)!;
     final totalTasks = _tasks.length;
     final doneTasks = _tasks.where((t) => t.isDone).length;
-    final toolbarBg = CupertinoColors.systemBackground.resolveFrom(context).withValues(alpha: 0.94);
 
     return CupertinoPageScaffold(
-      child: Stack(
-        children: [
-          CustomScrollView(
-            slivers: [
-              CupertinoSliverNavigationBar(
-                largeTitle: Text(l10n.todayTab),
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverNavigationBar(
+            largeTitle: Text(l10n.todayTab),
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                // TODO: Add task to current block
+              },
+              child: const Icon(
+                CupertinoIcons.plus_circle_fill,
+                size: 28,
+                color: CupertinoColors.systemBlue,
               ),
-
-              // Summary Cards (Smart List style)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Row(
-                    children: [
-                      // Next Prayer Card
-                      Expanded(
-                        child: SummaryCard(
-                          title: l10n.nextPrayer,
-                          value: 'العصر',
-                          subtitle: '03:15 م • بعد 1:20 س',
-                          icon: CupertinoIcons.sun_haze_fill,
-                          iconBackgroundColor: CupertinoColors.systemTeal,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Today Tasks Card
-                      Expanded(
-                        child: SummaryCard(
-                          title: l10n.todayTasks,
-                          value: '$doneTasks / $totalTasks',
-                          subtitle: totalTasks > 0
-                              ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
-                              : null,
-                          icon: CupertinoIcons.checkmark_circle_fill,
-                          iconBackgroundColor: CupertinoColors.systemBlue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Prayer Block Sections
-              SliverPadding(
-                padding: const EdgeInsets.only(bottom: 70), // space for bottom toolbar
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final block = PrayerBlockInfo.allBlocks[index];
-                      final blockTasks = _tasks.where((t) => t.block == block.type).toList();
-                      final isCurrent = block.type == PrayerBlockType.afterDhuhr;
-
-                      int usedMinutes = 0;
-                      for (final t in blockTasks) {
-                        if (t.durationMinutes != null) {
-                          usedMinutes += t.durationMinutes!;
-                        }
-                      }
-
-                      final durationUsage = usedMinutes > 0
-                          ? 'المستخدم: $usedMinutes د'
-                          : null;
-
-                      return AppSection(
-                        title: block.label,
-                        timeRange: block.defaultTimeRange,
-                        blockColor: block.color,
-                        icon: block.icon,
-                        isCurrentBlock: isCurrent,
-                        durationUsageText: durationUsage,
-                        onAddNewTask: () {
-                          // TODO: Will trigger inline task creation
-                        },
-                        children: [
-                          for (final task in blockTasks)
-                            TaskRow(
-                              id: task.id,
-                              title: task.title,
-                              notes: task.notes,
-                              durationMinutes: task.durationMinutes,
-                              isDone: task.isDone,
-                              blockColor: block.color,
-                              onToggle: (val) {
-                                setState(() {
-                                  task.isDone = val;
-                                });
-                              },
-                            ),
-                        ],
-                      );
-                    },
-                    childCount: PrayerBlockInfo.allBlocks.length,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
 
-          // Bottom Toolbar like Reminders (⊕ مهمة جديدة)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: toolbarBg,
-                border: Border(
-                  top: BorderSide(
-                    color: CupertinoColors.separator.resolveFrom(context),
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Row(
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        // TODO: Add task to current block
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            CupertinoIcons.plus_circle_fill,
-                            size: 26,
-                            color: CupertinoColors.systemBlue,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.newTask,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: CupertinoColors.systemBlue,
-                            ),
-                          ),
-                        ],
-                      ),
+          // Summary Cards (Smart List style)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Row(
+                children: [
+                  // Next Prayer Card
+                  Expanded(
+                    child: SummaryCard(
+                      title: l10n.nextPrayer,
+                      value: 'العصر',
+                      subtitle: '03:15 م • بعد 1:20 س',
+                      icon: CupertinoIcons.sun_haze_fill,
+                      iconBackgroundColor: CupertinoColors.systemTeal,
                     ),
-                    const Spacer(),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Today Tasks Card
+                  Expanded(
+                    child: SummaryCard(
+                      title: l10n.todayTasks,
+                      value: '$doneTasks / $totalTasks',
+                      subtitle: totalTasks > 0
+                          ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
+                          : null,
+                      icon: CupertinoIcons.checkmark_circle_fill,
+                      iconBackgroundColor: CupertinoColors.systemBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Prayer Block Sections
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 32),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final block = PrayerBlockInfo.allBlocks[index];
+                  final blockTasks = _tasks.where((t) => t.block == block.type).toList();
+                  final isCurrent = block.type == PrayerBlockType.afterDhuhr;
+
+                  int usedMinutes = 0;
+                  for (final t in blockTasks) {
+                    if (t.durationMinutes != null) {
+                      usedMinutes += t.durationMinutes!;
+                    }
+                  }
+
+                  final durationUsage = usedMinutes > 0
+                      ? 'المستخدم: $usedMinutes د'
+                      : null;
+
+                  return AppSection(
+                    title: block.label,
+                    timeRange: block.defaultTimeRange,
+                    blockColor: block.color,
+                    icon: block.icon,
+                    isCurrentBlock: isCurrent,
+                    durationUsageText: durationUsage,
+                    onAddNewTask: () {
+                      // TODO: Will trigger inline task creation
+                    },
+                    children: [
+                      for (final task in blockTasks)
+                        TaskRow(
+                          id: task.id,
+                          title: task.title,
+                          notes: task.notes,
+                          durationMinutes: task.durationMinutes,
+                          isDone: task.isDone,
+                          blockColor: block.color,
+                          onToggle: (val) {
+                            setState(() {
+                              task.isDone = val;
+                            });
+                          },
+                        ),
+                    ],
+                  );
+                },
+                childCount: PrayerBlockInfo.allBlocks.length,
               ),
             ),
           ),

@@ -34,8 +34,10 @@
   - Tapping empty space at the end of a section (or the "مهمة جديدة" row) creates a new empty row with the cursor in it.
   - Enter saves and opens another empty row; tapping outside saves; an empty row is discarded.
   - An (i) info button on the editing row opens the full details sheet (notes, duration, block, day).
-- **Bottom toolbar like Reminders**:
-  - A "⊕ مهمة جديدة" button (bold, accent color `CupertinoColors.systemBlue`, `CupertinoIcons.plus_circle_fill`) at the bottom of the Today and day screens, adding to the current block.
+- **Add Task Actions (Apple HIG standard)**:
+  - A prominent "⊕" button (accent color `CupertinoColors.systemBlue`, `CupertinoIcons.plus_circle_fill`) in the top `CupertinoSliverNavigationBar` trailing position.
+  - An inline "مهمة جديدة" row with a subtle plus icon at the bottom of each prayer block section.
+  - This avoids an awkward stacked double toolbar above the bottom `CupertinoTabBar`.
 - **Today header (Smart-list cards)**:
   - Row of 2 rounded cards at the top:
     1. "الصلاة القادمة" (prayer name, time, countdown e.g. "العصر • 03:15 م • بعد 1:20 س").
