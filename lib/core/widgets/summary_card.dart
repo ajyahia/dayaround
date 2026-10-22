@@ -5,7 +5,7 @@ class SummaryCard extends StatelessWidget {
   final String value;
   final String? subtitle;
   final IconData icon;
-  final Gradient gradient;
+  final Color accentColor;
   final VoidCallback? onTap;
 
   const SummaryCard({
@@ -14,30 +14,35 @@ class SummaryCard extends StatelessWidget {
     required this.value,
     this.subtitle,
     required this.icon,
-    required this.gradient,
+    this.accentColor = const Color(0xFF007AFF),
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
+    final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
+    final labelColor = CupertinoColors.label.resolveFrom(context);
+    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 118),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        constraints: const BoxConstraints(minHeight: 106),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          gradient: gradient,
+          color: cardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0x33FFFFFF),
-            width: 0.8,
+            color: isDark ? const Color(0x22FFFFFF) : const Color(0x18000000),
+            width: 0.6,
           ),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 16,
-              offset: Offset(0, 4),
+              color: isDark ? const Color(0x33000000) : const Color(0x08000000),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -45,22 +50,34 @@ class SummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Top Row: Icon on start, big bold number on end
+            // Top Row: Colored circular icon on start, big bold number on end (Apple Reminders Image 4)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  size: 26,
-                  color: CupertinoColors.white,
+                // 32x32 Colored circular icon
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      size: 18,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
                 ),
+                // Bold value / countdown
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: TextStyle(
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: CupertinoColors.white,
+                    color: labelColor,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -74,23 +91,22 @@ class SummaryCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.white,
-                    letterSpacing: -0.3,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: secondaryColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xD9FFFFFF),
+                      color: isDark ? const Color(0xFFE5E5EA) : const Color(0xFF1C1C1E),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

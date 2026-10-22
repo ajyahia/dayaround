@@ -139,53 +139,57 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                     ),
 
-                    // Subtitle metadata line (Image 1: tag, duration, notes)
-                    const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        if (widget.blockLabel != null) ...[
-                          Text(
-                            widget.blockLabel!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: widget.blockColor,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                        if (widget.durationMinutes != null) ...[
-                          Icon(
-                            CupertinoIcons.clock,
-                            size: 13,
-                            color: CupertinoColors.systemRed.resolveFrom(context),
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '${widget.durationMinutes} د',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: CupertinoColors.systemRed.resolveFrom(context),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                        ],
-                        if (widget.notes != null && widget.notes!.trim().isNotEmpty) ...[
-                          Expanded(
-                            child: DirectionalText(
-                              widget.notes!,
+                    // Subtitle metadata line (tag, duration, notes)
+                    if (widget.blockLabel != null ||
+                        widget.durationMinutes != null ||
+                        (widget.notes != null && widget.notes!.trim().isNotEmpty)) ...[
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          if (widget.blockLabel != null) ...[
+                            Text(
+                              widget.blockLabel!,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: secondaryColor,
+                                fontWeight: FontWeight.w500,
+                                color: widget.blockColor,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
+                            const SizedBox(width: 6),
+                          ],
+                          if (widget.durationMinutes != null) ...[
+                            Icon(
+                              CupertinoIcons.clock,
+                              size: 13,
+                              color: CupertinoColors.systemRed.resolveFrom(context),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              '${widget.durationMinutes} د',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: CupertinoColors.systemRed.resolveFrom(context),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          if (widget.notes != null && widget.notes!.trim().isNotEmpty) ...[
+                            Expanded(
+                              child: DirectionalText(
+                                widget.notes!,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: secondaryColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ],
                 ),
               ),

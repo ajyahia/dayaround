@@ -293,24 +293,20 @@ class _TodayScreenState extends State<TodayScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Card 1: Next Prayer (Apple Cobalt Blue gradient)
+                        // Card 1: Next Prayer (Apple Reminders style)
                         Expanded(
                           child: SummaryCard(
                             title: 'الصلاة القادمة',
                             value: '03:15 م',
                             subtitle: 'العصر • بعد 1:20 س',
                             icon: CupertinoIcons.sun_haze_fill,
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFF2C7BF6), Color(0xFF0055D4)],
-                            ),
+                            accentColor: const Color(0xFF007AFF),
                             onTap: () {},
                           ),
                         ),
                         const SizedBox(width: 12),
 
-                        // Card 2: Today Tasks (Apple Coral / Scheduled red gradient)
+                        // Card 2: Today Tasks (Apple Reminders style)
                         Expanded(
                           child: SummaryCard(
                             title: 'مهام اليوم',
@@ -319,11 +315,7 @@ class _TodayScreenState extends State<TodayScreen> {
                                 ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
                                 : null,
                             icon: CupertinoIcons.checkmark_circle_fill,
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFFEB4D5E), Color(0xFFC72839)],
-                            ),
+                            accentColor: const Color(0xFFFF9500),
                             onTap: () {},
                           ),
                         ),
@@ -407,7 +399,6 @@ class _TodayScreenState extends State<TodayScreen> {
                               durationMinutes: task.durationMinutes,
                               isDone: task.isDone,
                               blockColor: block.color,
-                              blockLabel: block.label,
                               onToggle: (val) {
                                 setState(() {
                                   task.isDone = val;

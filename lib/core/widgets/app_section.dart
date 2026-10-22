@@ -31,12 +31,80 @@ class AppSection extends StatelessWidget {
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
 
+    // Case 1: Empty & Not current block -> Minimal peaceful compact tile (saves vertical clutter)
+    if (children.isEmpty && !isCurrentBlock) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: GestureDetector(
+          onTap: onAddNewTask,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: sectionBg.withValues(alpha: isDark ? 0.45 : 0.65),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? const Color(0x14FFFFFF) : const Color(0x0A000000),
+                width: 0.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: blockColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      size: 13,
+                      color: blockColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: secondaryColor,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  timeRange,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: secondaryColor.withValues(alpha: 0.7),
+                  ),
+                ),
+                if (onAddNewTask != null) ...[
+                  const SizedBox(width: 10),
+                  Icon(
+                    CupertinoIcons.plus,
+                    size: 15,
+                    color: secondaryColor.withValues(alpha: 0.6),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Case 2: Has tasks OR is current block -> Clean Apple Reminders Section
     return Padding(
-      padding: const EdgeInsets.only(bottom: 22),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Header (Reminders style with block identity)
+          // Section Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
             child: Row(
@@ -59,14 +127,14 @@ class AppSection extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
 
-                // Block title in its color
+                // Block title
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: blockColor,
-                    letterSpacing: -0.4,
+                    letterSpacing: -0.3,
                   ),
                 ),
 
@@ -74,10 +142,10 @@ class AppSection extends StatelessWidget {
                 if (isCurrentBlock) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: blockColor.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: blockColor.withValues(alpha: 0.4),
                         width: 0.8,
@@ -123,6 +191,30 @@ class AppSection extends StatelessWidget {
                     ],
                   ],
                 ),
+
+                // Quick add (+) button in header
+                if (onAddNewTask != null) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onAddNewTask,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: blockColor.withValues(alpha: 0.12),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          CupertinoIcons.plus,
+                          size: 14,
+                          color: blockColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -135,14 +227,16 @@ class AppSection extends StatelessWidget {
                 color: sectionBg,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isDark ? const Color(0x22FFFFFF) : const Color(0x18000000),
-                  width: 0.6,
+                  color: isCurrentBlock
+                      ? const Color(0xFF007AFF).withValues(alpha: 0.35)
+                      : (isDark ? const Color(0x22FFFFFF) : const Color(0x18000000)),
+                  width: isCurrentBlock ? 1.0 : 0.6,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: isDark ? const Color(0x33000000) : const Color(0x0A000000),
-                    blurRadius: 12,
-                    offset: const Offset(0, 3),
+                    color: isDark ? const Color(0x33000000) : const Color(0x08000000),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -151,22 +245,40 @@ class AppSection extends StatelessWidget {
                 child: Column(
                   children: [
                     if (children.isEmpty)
+                      // Current block empty state
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        child: Center(
-                          child: Text(
-                            'لا توجد مهام',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: secondaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'لا توجد مهام متبقية لهذه الصلاة',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: secondaryColor,
+                              ),
                             ),
-                          ),
+                            if (onAddNewTask != null) ...[
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: onAddNewTask,
+                                child: Text(
+                                  '+ إضافة',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: blockColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       )
                     else
                       for (int i = 0; i < children.length; i++) ...[
                         children[i],
-                        if (i < children.length - 1 || onAddNewTask != null)
+                        if (i < children.length - 1)
                           Padding(
                             padding: const EdgeInsetsDirectional.only(start: 52),
                             child: Container(
@@ -175,51 +287,6 @@ class AppSection extends StatelessWidget {
                             ),
                           ),
                       ],
-
-                    // Dashed circle inline add row (Image 1 style)
-                    if (onAddNewTask != null)
-                      GestureDetector(
-                        onTap: onAddNewTask,
-                        behavior: HitTestBehavior.opaque,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 46),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            child: Row(
-                              children: [
-                                // Dashed circle icon
-                                Container(
-                                  width: 22,
-                                  height: 22,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: secondaryColor.withValues(alpha: 0.5),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      CupertinoIcons.plus,
-                                      size: 13,
-                                      color: secondaryColor,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 13),
-                                Text(
-                                  'مهمة جديدة',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: secondaryColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
