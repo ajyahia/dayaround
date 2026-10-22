@@ -5,6 +5,8 @@ import 'package:jimy/core/widgets/inline_task_editor.dart';
 import 'package:jimy/core/widgets/summary_card.dart';
 import 'package:jimy/core/widgets/task_details_sheet.dart';
 import 'package:jimy/core/widgets/task_row.dart';
+import 'package:jimy/features/settings/presentation/settings_screen.dart';
+import 'package:jimy/features/week/presentation/week_screen.dart';
 
 // TODO: Fake sample tasks for UI preview, will be replaced with Hive/Riverpod tasks
 class _SampleTask {
@@ -131,8 +133,28 @@ class _TodayScreenState extends State<TodayScreen> {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        title: const Text('خيارات قائمة اليوم'),
+        title: const Text('خيارات'),
         actions: [
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (_) => const WeekScreen()),
+              );
+            },
+            child: const Text('عرض الأسبوع'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+            child: const Text('الإعدادات'),
+          ),
           CupertinoActionSheetAction(
             onPressed: () => Navigator.pop(context),
             child: const Text('إخفاء المهام المكتملة'),
@@ -171,23 +193,95 @@ class _TodayScreenState extends State<TodayScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: GestureDetector(
-                  onTap: _showMoreMenu,
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: circleBtnBg,
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        CupertinoIcons.ellipsis,
-                        size: 18,
-                        color: Color(0xFF007AFF),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Week button
+                    Semantics(
+                      label: 'الأسبوع',
+                      button: true,
+                      child: GestureDetector(
+                        key: const Key('week_button'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(builder: (_) => const WeekScreen()),
+                          );
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: circleBtnBg,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              CupertinoIcons.calendar,
+                              size: 18,
+                              color: Color(0xFF007AFF),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+
+                    // Settings button
+                    Semantics(
+                      label: 'الإعدادات',
+                      button: true,
+                      child: GestureDetector(
+                        key: const Key('settings_button'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(builder: (_) => const SettingsScreen()),
+                          );
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: circleBtnBg,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              CupertinoIcons.gear,
+                              size: 18,
+                              color: Color(0xFF007AFF),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // More Menu (...)
+                    GestureDetector(
+                      key: const Key('more_button'),
+                      onTap: _showMoreMenu,
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: circleBtnBg,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            CupertinoIcons.ellipsis,
+                            size: 18,
+                            color: Color(0xFF007AFF),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -330,35 +424,41 @@ class _TodayScreenState extends State<TodayScreen> {
                   ),
                 ),
               ),
+              // Bottom breathing space for floating action button
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.paddingOf(context).bottom + 90,
+                ),
+              ),
             ],
           ),
 
           // Authentic Apple Reminders Floating (+) Action Button (Image 1 & 4)
           PositionedDirectional(
-            bottom: 16,
-            start: 20, // In RTL, this is on the bottom-right; in LTR bottom-left
+            bottom: MediaQuery.paddingOf(context).bottom + 24,
+            start: 24, // Clean floating position on start corner
             child: GestureDetector(
               onTap: () {
                 _openDetailsSheet(defaultBlock: PrayerBlockType.afterDhuhr);
               },
               child: Container(
-                width: 56,
-                height: 56,
+                width: 58,
+                height: 58,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFF007AFF), // Vibrant Apple blue
                   boxShadow: [
                     BoxShadow(
                       color: Color(0x66007AFF),
-                      blurRadius: 16,
-                      offset: Offset(0, 5),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
                     ),
                   ],
                 ),
                 child: const Center(
                   child: Icon(
                     CupertinoIcons.plus,
-                    size: 28,
+                    size: 30,
                     color: CupertinoColors.white,
                   ),
                 ),

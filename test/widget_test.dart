@@ -9,7 +9,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('App shell renders with 3 tabs and navigates to appearance sub-page', (WidgetTester tester) async {
+  testWidgets('App renders Today screen cleanly and navigates to appearance settings', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: JimyApp(),
@@ -17,15 +17,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify initial tab (Today / اليوم) is visible with smart cards and sample sections
+    // Verify Today screen is visible with smart cards, action buttons, and sample sections
     expect(find.text('اليوم'), findsWidgets);
-    expect(find.text('الأسبوع'), findsOneWidget);
-    expect(find.text('الإعدادات'), findsOneWidget);
     expect(find.text('الصلاة القادمة'), findsOneWidget);
     expect(find.text('مهام اليوم'), findsOneWidget);
+    expect(find.byKey(const Key('settings_button')), findsOneWidget);
+    expect(find.byKey(const Key('week_button')), findsOneWidget);
 
-    // Tap on Settings tab
-    await tester.tap(find.text('الإعدادات'));
+    // Tap on Settings button in the top navigation bar
+    await tester.tap(find.byKey(const Key('settings_button')));
     await tester.pumpAndSettle();
 
     // Verify settings rows
