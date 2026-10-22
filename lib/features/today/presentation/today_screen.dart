@@ -195,43 +195,46 @@ class _TodayScreenState extends State<TodayScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Row(
-                    children: [
-                      // Card 1: Next Prayer (Apple Cobalt Blue gradient)
-                      Expanded(
-                        child: SummaryCard(
-                          title: 'الصلاة القادمة',
-                          value: '03:15 م',
-                          subtitle: 'العصر • بعد 1:20 س',
-                          icon: CupertinoIcons.sun_haze_fill,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF2C7BF6), Color(0xFF0055D4)],
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Card 1: Next Prayer (Apple Cobalt Blue gradient)
+                        Expanded(
+                          child: SummaryCard(
+                            title: 'الصلاة القادمة',
+                            value: '03:15 م',
+                            subtitle: 'العصر • بعد 1:20 س',
+                            icon: CupertinoIcons.sun_haze_fill,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFF2C7BF6), Color(0xFF0055D4)],
+                            ),
+                            onTap: () {},
                           ),
-                          onTap: () {},
                         ),
-                      ),
-                      const SizedBox(width: 12),
+                        const SizedBox(width: 12),
 
-                      // Card 2: Today Tasks (Apple Coral / Scheduled red gradient)
-                      Expanded(
-                        child: SummaryCard(
-                          title: 'مهام اليوم',
-                          value: '$doneTasks / $totalTasks',
-                          subtitle: totalTasks > 0
-                              ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
-                              : null,
-                          icon: CupertinoIcons.checkmark_circle_fill,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFFEB4D5E), Color(0xFFC72839)],
+                        // Card 2: Today Tasks (Apple Coral / Scheduled red gradient)
+                        Expanded(
+                          child: SummaryCard(
+                            title: 'مهام اليوم',
+                            value: '$doneTasks / $totalTasks',
+                            subtitle: totalTasks > 0
+                                ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
+                                : null,
+                            icon: CupertinoIcons.checkmark_circle_fill,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFFEB4D5E), Color(0xFFC72839)],
+                            ),
+                            onTap: () {},
                           ),
-                          onTap: () {},
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

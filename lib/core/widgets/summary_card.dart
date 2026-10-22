@@ -24,8 +24,8 @@ class SummaryCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 110,
-        padding: const EdgeInsets.all(14),
+        constraints: const BoxConstraints(minHeight: 114),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(16),
@@ -48,17 +48,17 @@ class SummaryCard extends StatelessWidget {
             // Top Row: Icon on start, big bold number on end
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   icon,
-                  size: 28,
+                  size: 26,
                   color: CupertinoColors.white,
                 ),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: CupertinoColors.white,
                     letterSpacing: -0.5,
@@ -66,6 +66,7 @@ class SummaryCard extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
 
             // Bottom Labels
             Column(
