@@ -24,7 +24,7 @@ class SummaryCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 114),
+        constraints: const BoxConstraints(minHeight: 118),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           gradient: gradient,
@@ -66,7 +66,6 @@ class SummaryCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
 
             // Bottom Labels
             Column(
