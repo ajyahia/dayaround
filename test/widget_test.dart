@@ -1,18 +1,39 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:jimy/features/prayer_times/presentation/controllers/prayer_times_providers.dart';
+import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  late Directory tempDir;
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    tempDir = await Directory.systemTemp.createTemp('widget_test_hive_');
+    Hive.init(tempDir.path);
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(TaskAdapter());
+    }
+    if (!Hive.isBoxOpen('tasks_box')) {
+      await Hive.openBox<Task>('tasks_box');
+    }
+  });
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
   testWidgets('App renders Today screen cleanly and navigates to appearance settings', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: JimyApp(),
+      ProviderScope(
+        overrides: [
+          currentTimeProvider.overrideWith((ref) => Stream.value(DateTime.now())),
+        ],
+        child: const JimyApp(),
       ),
     );
     await tester.pumpAndSettle();
@@ -48,5 +69,9 @@ void main() {
 
     // Verify checkmark is on dark mode
     expect(find.byIcon(CupertinoIcons.checkmark), findsOneWidget);
+
+    // Clean up
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
   });
 }

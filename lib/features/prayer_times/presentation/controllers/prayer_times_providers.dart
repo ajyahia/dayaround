@@ -115,12 +115,12 @@ final dayBlocksProvider = Provider.family<List<DayBlock>, DateTime>((ref, date) 
 });
 
 /// Periodic tick for live countdown
-final currentTimeProvider = StreamProvider<DateTime>((ref) {
+final currentTimeProvider = StreamProvider.autoDispose<DateTime>((ref) {
   return Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now());
 });
 
 /// Next prayer information with live countdown
-final nextPrayerProvider = Provider<NextPrayerInfo?>((ref) {
+final nextPrayerProvider = Provider.autoDispose<NextPrayerInfo?>((ref) {
   final nowAsync = ref.watch(currentTimeProvider);
   final now = nowAsync.value ?? DateTime.now();
   final todayTimes = ref.watch(prayerTimesForDateProvider(now));

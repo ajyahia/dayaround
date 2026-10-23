@@ -13,25 +13,9 @@ import 'package:jimy/features/prayer_times/presentation/screens/location_setting
 import 'package:jimy/features/prayer_times/presentation/widgets/prayer_countdown_card.dart';
 import 'package:jimy/features/prayer_times/presentation/widgets/prayer_times_section.dart';
 import 'package:jimy/features/settings/presentation/settings_screen.dart';
+import 'package:jimy/features/tasks/domain/models/task_model.dart';
+import 'package:jimy/features/tasks/presentation/controllers/tasks_providers.dart';
 import 'package:jimy/features/week/presentation/week_screen.dart';
-
-class _SampleTask {
-  final String id;
-  String title;
-  String? notes;
-  int? durationMinutes;
-  bool isDone;
-  PrayerBlockType block;
-
-  _SampleTask({
-    required this.id,
-    required this.title,
-    this.notes,
-    this.durationMinutes,
-    this.isDone = false,
-    required this.block,
-  });
-}
 
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
@@ -41,71 +25,96 @@ class TodayScreen extends ConsumerStatefulWidget {
 }
 
 class _TodayScreenState extends ConsumerState<TodayScreen> {
-  late List<_SampleTask> _tasks;
   PrayerBlockType? _inlineAddingBlock;
 
   @override
   void initState() {
     super.initState();
-    _tasks = [
-      _SampleTask(
-        id: '1',
-        title: 'قيام الليل وركعتي الفجر',
-        durationMinutes: 30,
-        isDone: false,
-        block: PrayerBlockType.beforeFajr,
-      ),
-      _SampleTask(
-        id: '2',
-        title: 'أذكار الصباح وقراءة ورد القرآن',
-        durationMinutes: 20,
-        isDone: true,
-        block: PrayerBlockType.afterFajr,
-      ),
-      _SampleTask(
-        id: '3',
-        title: 'شراء خبز وإفطار مع العائلة',
-        durationMinutes: 15,
-        isDone: false,
-        block: PrayerBlockType.afterFajr,
-      ),
-      _SampleTask(
-        id: '4',
-        title: 'صلاة الظهر وسننها الراتبة',
-        durationMinutes: 15,
-        isDone: true,
-        block: PrayerBlockType.afterDhuhr,
-      ),
-      _SampleTask(
-        id: '5',
-        title: 'ميتنج مع مروة بخصوص المشروع',
-        notes: 'مراجعة الملاحظات الأخيرة',
-        durationMinutes: 30,
-        isDone: false,
-        block: PrayerBlockType.afterDhuhr,
-      ),
-      _SampleTask(
-        id: '6',
-        title: 'مشي لمدة نصف ساعة وأذكار المساء',
-        notes: 'في الحديقة العامة',
-        durationMinutes: 30,
-        isDone: false,
-        block: PrayerBlockType.afterAsr,
-      ),
-      _SampleTask(
-        id: '7',
-        title: 'قراءة ورد ما قبل النوم والاستعداد للغد',
-        durationMinutes: 15,
-        isDone: false,
-        block: PrayerBlockType.afterIsha,
-      ),
-    ];
+    // Populate starter tasks on initial fresh launch if box is empty
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final repo = ref.read(taskRepositoryProvider);
+      if (repo.box.isEmpty) {
+        final todayStr = Task.formatDate(DateTime.now());
+        final starterTasks = [
+          Task(
+            id: '1',
+            title: 'قيام الليل وركعتي الفجر',
+            durationMinutes: 30,
+            isDone: false,
+            date: todayStr,
+            block: PrayerBlockType.beforeFajr,
+            createdAt: DateTime.now().subtract(const Duration(hours: 5)),
+          ),
+          Task(
+            id: '2',
+            title: 'أذكار الصباح وقراءة ورد القرآن',
+            durationMinutes: 20,
+            isDone: true,
+            date: todayStr,
+            block: PrayerBlockType.afterFajr,
+            createdAt: DateTime.now().subtract(const Duration(hours: 4)),
+          ),
+          Task(
+            id: '3',
+            title: 'شراء خبز وإفطار مع العائلة',
+            durationMinutes: 15,
+            isDone: false,
+            date: todayStr,
+            block: PrayerBlockType.afterFajr,
+            createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+          ),
+          Task(
+            id: '4',
+            title: 'صلاة الظهر وسننها الراتبة',
+            durationMinutes: 15,
+            isDone: true,
+            date: todayStr,
+            block: PrayerBlockType.afterDhuhr,
+            createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+          ),
+          Task(
+            id: '5',
+            title: 'ميتنج مع مروة بخصوص المشروع',
+            notes: 'مراجعة الملاحظات الأخيرة',
+            durationMinutes: 30,
+            isDone: false,
+            date: todayStr,
+            block: PrayerBlockType.afterDhuhr,
+            createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+          ),
+          Task(
+            id: '6',
+            title: 'مشي لمدة نصف ساعة وأذكار المساء',
+            notes: 'في الحديقة العامة',
+            durationMinutes: 30,
+            isDone: false,
+            date: todayStr,
+            block: PrayerBlockType.afterAsr,
+            createdAt: DateTime.now(),
+          ),
+          Task(
+            id: '7',
+            title: 'قراءة ورد ما قبل النوم والاستعداد للغد',
+            durationMinutes: 15,
+            isDone: false,
+            date: todayStr,
+            block: PrayerBlockType.afterIsha,
+            createdAt: DateTime.now(),
+          ),
+        ];
+        for (final t in starterTasks) {
+          repo.addTask(t);
+        }
+      }
+    });
   }
 
   void _openDetailsSheet({
-    _SampleTask? task,
+    Task? task,
     PrayerBlockType defaultBlock = PrayerBlockType.afterDhuhr,
   }) {
+    final todayStr = Task.formatDate(DateTime.now());
+
     showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => TaskDetailsSheet(
@@ -114,24 +123,31 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         initialDuration: task?.durationMinutes,
         initialBlock: task?.block ?? defaultBlock,
         onSave: (title, notes, duration, block) {
-          setState(() {
-            if (task != null) {
-              task.title = title;
-              task.notes = notes;
-              task.durationMinutes = duration;
-              task.block = block;
-            } else {
-              _tasks.add(
-                _SampleTask(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: title,
-                  notes: notes,
-                  durationMinutes: duration,
-                  block: block,
-                ),
-              );
-            }
-          });
+          final repo = ref.read(taskRepositoryProvider);
+          if (task != null) {
+            repo.updateTask(
+              task.copyWith(
+                title: title,
+                notes: notes,
+                clearNotes: notes == null,
+                durationMinutes: duration,
+                clearDuration: duration == null,
+                block: block,
+              ),
+            );
+          } else {
+            repo.addTask(
+              Task(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                title: title,
+                notes: notes,
+                durationMinutes: duration,
+                date: todayStr,
+                block: block,
+                createdAt: DateTime.now(),
+              ),
+            );
+          }
         },
       ),
     );
@@ -183,12 +199,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final totalTasks = _tasks.length;
-    final doneTasks = _tasks.where((t) => t.isDone).length;
+    final now = DateTime.now();
+    final todayStr = Task.formatDate(now);
+
+    final taskCounts = ref.watch(todayTaskCountsProvider);
+    final totalTasks = taskCounts.$1;
+    final doneTasks = taskCounts.$2;
+
+    final tasksByBlock = ref.watch(tasksByBlockProvider(todayStr));
+
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final circleBtnBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1F767680);
 
-    final now = DateTime.now();
     final location = ref.watch(currentLocationProvider);
     final cityName = location.name;
 
@@ -403,14 +425,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   child: InlineTaskEditor(
                     block: _inlineAddingBlock!,
                     onSave: (title) {
+                      ref.read(taskRepositoryProvider).addTask(
+                        Task(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          title: title,
+                          date: todayStr,
+                          block: _inlineAddingBlock!,
+                          createdAt: DateTime.now(),
+                        ),
+                      );
                       setState(() {
-                        _tasks.add(
-                          _SampleTask(
-                            id: DateTime.now().millisecondsSinceEpoch.toString(),
-                            title: title,
-                            block: _inlineAddingBlock!,
-                          ),
-                        );
                         _inlineAddingBlock = null;
                       });
                     },
@@ -436,8 +460,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final blockInfo = PrayerBlockInfo.allBlocks[index];
-                      final blockTasks =
-                          _tasks.where((t) => t.block == blockInfo.type).toList();
+                      final blockTasks = tasksByBlock[blockInfo.type] ?? [];
 
                       // Get real calculated time range if available
                       String timeRange = blockInfo.defaultTimeRange;
@@ -485,9 +508,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                               isDone: task.isDone,
                               blockColor: blockInfo.color,
                               onToggle: (val) {
-                                setState(() {
-                                  task.isDone = val;
-                                });
+                                ref
+                                    .read(taskRepositoryProvider)
+                                    .toggleDone(task.id);
                               },
                               onInfoTap: () {
                                 _openDetailsSheet(task: task);

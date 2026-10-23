@@ -1,12 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:jimy/core/theme/app_theme.dart';
 import 'package:jimy/features/home/presentation/home_scaffold.dart';
+import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/l10n/app_localizations.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(TaskAdapter());
+  }
+  await Hive.openBox<Task>('tasks_box');
+
   runApp(
     const ProviderScope(
       child: JimyApp(),
