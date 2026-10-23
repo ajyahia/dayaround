@@ -1,14 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart';
 import 'package:jimy/core/theme/prayer_block_theme.dart';
 import 'package:jimy/core/widgets/app_section.dart';
 import 'package:jimy/core/widgets/inline_task_editor.dart';
 import 'package:jimy/core/widgets/summary_card.dart';
 import 'package:jimy/core/widgets/task_details_sheet.dart';
 import 'package:jimy/core/widgets/task_row.dart';
+import 'package:jimy/features/prayer_times/presentation/controllers/prayer_times_providers.dart';
+import 'package:jimy/features/prayer_times/presentation/screens/location_settings_screen.dart';
+import 'package:jimy/features/prayer_times/presentation/widgets/prayer_countdown_card.dart';
+import 'package:jimy/features/prayer_times/presentation/widgets/prayer_times_section.dart';
 import 'package:jimy/features/settings/presentation/settings_screen.dart';
 import 'package:jimy/features/week/presentation/week_screen.dart';
 
-// TODO: Fake sample tasks for UI preview, will be replaced with Hive/Riverpod tasks
 class _SampleTask {
   final String id;
   String title;
@@ -27,15 +33,14 @@ class _SampleTask {
   });
 }
 
-class TodayScreen extends StatefulWidget {
+class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
 
   @override
-  State<TodayScreen> createState() => _TodayScreenState();
+  ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
-class _TodayScreenState extends State<TodayScreen> {
-  // TODO: Fake sample tasks state for visual demonstration
+class _TodayScreenState extends ConsumerState<TodayScreen> {
   late List<_SampleTask> _tasks;
   PrayerBlockType? _inlineAddingBlock;
 
@@ -97,8 +102,11 @@ class _TodayScreenState extends State<TodayScreen> {
     ];
   }
 
-  void _openDetailsSheet({_SampleTask? task, PrayerBlockType defaultBlock = PrayerBlockType.afterDhuhr}) {
-    showCupertinoModalPopup(
+  void _openDetailsSheet({
+    _SampleTask? task,
+    PrayerBlockType defaultBlock = PrayerBlockType.afterDhuhr,
+  }) {
+    showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => TaskDetailsSheet(
         initialTitle: task?.title,
@@ -180,6 +188,19 @@ class _TodayScreenState extends State<TodayScreen> {
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final circleBtnBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1F767680);
 
+    final now = DateTime.now();
+    final location = ref.watch(currentLocationProvider);
+    final cityName = location.name;
+
+    // Gregorian & Hijri Dates
+    final gregorianDate = DateFormat('EEEE، d MMMM y', 'ar_EG').format(now);
+    HijriCalendar.setLocal('ar');
+    final hijri = HijriCalendar.fromDate(now);
+    final hijriDate = '${hijri.hDay} ${hijri.longMonthName} ${hijri.hYear} هـ';
+
+    final calculatedBlocks = ref.watch(dayBlocksProvider(now));
+    final timeFormat = DateFormat('hh:mm a', 'ar_EG');
+
     return CupertinoPageScaffold(
       child: Stack(
         children: [
@@ -189,7 +210,7 @@ class _TodayScreenState extends State<TodayScreen> {
                 largeTitle: const Text(
                   'اليوم',
                   style: TextStyle(
-                    color: Color(0xFF007AFF), // Vibrant Apple Reminders blue title
+                    color: Color(0xFF007AFF),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -285,28 +306,74 @@ class _TodayScreenState extends State<TodayScreen> {
                 ),
               ),
 
-              // Smart List Cards (Image 4 Apple Reminders style)
+              // City & Date Header (Apple Reminders Subtitle)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => const LocationSettingsScreen(),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.location_solid,
+                          size: 15,
+                          color: Color(0xFF007AFF),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          cityName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF007AFF),
+                          ),
+                        ),
+                        const Text(
+                          ' • ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.secondaryLabel,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            '$gregorianDate | $hijriDate',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: CupertinoColors.secondaryLabel,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Smart List Cards (Live next prayer countdown + tasks)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
                   child: IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Card 1: Next Prayer (Apple Reminders style)
-                        Expanded(
-                          child: SummaryCard(
-                            title: 'الصلاة القادمة',
-                            value: '03:15 م',
-                            subtitle: 'العصر • بعد 1:20 س',
-                            icon: CupertinoIcons.sun_haze_fill,
-                            accentColor: const Color(0xFF007AFF),
-                            onTap: () {},
-                          ),
+                        // Card 1: Next Prayer with Live Countdown
+                        const Expanded(
+                          child: PrayerCountdownCard(),
                         ),
                         const SizedBox(width: 12),
 
-                        // Card 2: Today Tasks (Apple Reminders style)
+                        // Card 2: Today Tasks
                         Expanded(
                           child: SummaryCard(
                             title: 'مهام اليوم',
@@ -325,7 +392,12 @@ class _TodayScreenState extends State<TodayScreen> {
                 ),
               ),
 
-              // Active Inline Task Editor if triggered (Image 2 style)
+              // The six prayer times in a CupertinoListSection.insetGrouped
+              SliverToBoxAdapter(
+                child: PrayerTimesSection(date: now),
+              ),
+
+              // Active Inline Task Editor if triggered
               if (_inlineAddingBlock != null)
                 SliverToBoxAdapter(
                   child: InlineTaskEditor(
@@ -359,13 +431,26 @@ class _TodayScreenState extends State<TodayScreen> {
 
               // Prayer Block Sections
               SliverPadding(
-                padding: const EdgeInsets.only(bottom: 90), // comfortable space for floating FAB
+                padding: const EdgeInsets.only(bottom: 90),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final block = PrayerBlockInfo.allBlocks[index];
-                      final blockTasks = _tasks.where((t) => t.block == block.type).toList();
-                      final isCurrent = block.type == PrayerBlockType.afterDhuhr;
+                      final blockInfo = PrayerBlockInfo.allBlocks[index];
+                      final blockTasks =
+                          _tasks.where((t) => t.block == blockInfo.type).toList();
+
+                      // Get real calculated time range if available
+                      String timeRange = blockInfo.defaultTimeRange;
+                      bool isCurrent = false;
+
+                      if (calculatedBlocks.isNotEmpty &&
+                          index < calculatedBlocks.length) {
+                        final calcBlock = calculatedBlocks[index];
+                        final startStr = timeFormat.format(calcBlock.start);
+                        final endStr = timeFormat.format(calcBlock.end);
+                        timeRange = '$startStr - $endStr';
+                        isCurrent = calcBlock.contains(now);
+                      }
 
                       int usedMinutes = 0;
                       for (final t in blockTasks) {
@@ -379,15 +464,15 @@ class _TodayScreenState extends State<TodayScreen> {
                           : null;
 
                       return AppSection(
-                        title: block.label,
-                        timeRange: block.defaultTimeRange,
-                        blockColor: block.color,
-                        icon: block.icon,
+                        title: blockInfo.label,
+                        timeRange: timeRange,
+                        blockColor: blockInfo.color,
+                        icon: blockInfo.icon,
                         isCurrentBlock: isCurrent,
                         durationUsageText: durationUsage,
                         onAddNewTask: () {
                           setState(() {
-                            _inlineAddingBlock = block.type;
+                            _inlineAddingBlock = blockInfo.type;
                           });
                         },
                         children: [
@@ -398,7 +483,7 @@ class _TodayScreenState extends State<TodayScreen> {
                               notes: task.notes,
                               durationMinutes: task.durationMinutes,
                               isDone: task.isDone,
-                              blockColor: block.color,
+                              blockColor: blockInfo.color,
                               onToggle: (val) {
                                 setState(() {
                                   task.isDone = val;
@@ -415,6 +500,7 @@ class _TodayScreenState extends State<TodayScreen> {
                   ),
                 ),
               ),
+
               // Bottom breathing space for floating action button
               SliverToBoxAdapter(
                 child: SizedBox(
@@ -424,10 +510,10 @@ class _TodayScreenState extends State<TodayScreen> {
             ],
           ),
 
-          // Authentic Apple Reminders Floating (+) Action Button (Image 1 & 4)
+          // Floating (+) Action Button
           PositionedDirectional(
             bottom: MediaQuery.paddingOf(context).bottom + 24,
-            start: 24, // Clean floating position on start corner
+            start: 24,
             child: GestureDetector(
               onTap: () {
                 _openDetailsSheet(defaultBlock: PrayerBlockType.afterDhuhr);
@@ -437,7 +523,7 @@ class _TodayScreenState extends State<TodayScreen> {
                 height: 58,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF007AFF), // Vibrant Apple blue
+                  color: Color(0xFF007AFF),
                   boxShadow: [
                     BoxShadow(
                       color: Color(0x66007AFF),

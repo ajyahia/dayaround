@@ -72,13 +72,20 @@ class SummaryCard extends StatelessWidget {
                   ),
                 ),
                 // Bold value / countdown
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: labelColor,
-                    letterSpacing: -0.5,
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: labelColor,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
                   ),
                 ),
               ],

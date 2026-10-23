@@ -2,6 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jimy/core/theme/app_theme.dart';
 import 'package:jimy/core/widgets/settings_row.dart';
+import 'package:jimy/features/prayer_times/domain/models/prayer_settings.dart';
+import 'package:jimy/features/prayer_times/presentation/controllers/prayer_times_providers.dart';
+import 'package:jimy/features/prayer_times/presentation/screens/calculation_settings_screen.dart';
+import 'package:jimy/features/prayer_times/presentation/screens/location_settings_screen.dart';
+import 'package:jimy/features/prayer_times/presentation/screens/madhab_settings_screen.dart';
 import 'package:jimy/features/settings/presentation/appearance_settings_screen.dart';
 import 'package:jimy/l10n/app_localizations.dart';
 
@@ -23,6 +28,9 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeModeProvider);
+    final location = ref.watch(currentLocationProvider);
+    final prayerSettings = ref.watch(prayerSettingsProvider);
+
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
@@ -94,8 +102,14 @@ class SettingsScreen extends ConsumerWidget {
                               icon: CupertinoIcons.location_fill,
                               iconBackgroundColor: CupertinoColors.systemGreen,
                               title: l10n.location,
-                              value: l10n.soon,
-                              onTap: () {},
+                              value: location.name,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (_) => const LocationSettingsScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.only(start: 57),
@@ -105,8 +119,14 @@ class SettingsScreen extends ConsumerWidget {
                               icon: CupertinoIcons.compass_fill,
                               iconBackgroundColor: CupertinoColors.systemOrange,
                               title: l10n.calcMethod,
-                              value: l10n.soon,
-                              onTap: () {},
+                              value: PrayerSettings.getMethodArabicName(prayerSettings.method),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (_) => const CalculationSettingsScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.only(start: 57),
@@ -116,8 +136,14 @@ class SettingsScreen extends ConsumerWidget {
                               icon: CupertinoIcons.clock_fill,
                               iconBackgroundColor: CupertinoColors.systemTeal,
                               title: l10n.asrMadhab,
-                              value: l10n.soon,
-                              onTap: () {},
+                              value: PrayerSettings.getMadhabArabicName(prayerSettings.madhab),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (_) => const MadhabSettingsScreen(),
+                                  ),
+                                );
+                              },
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.only(start: 57),
@@ -144,9 +170,7 @@ class SettingsScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 13,
                         color: footerColor,
-                        height: 1.35,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
