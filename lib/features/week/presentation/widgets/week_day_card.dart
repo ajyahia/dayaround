@@ -241,31 +241,19 @@ class WeekDayCard extends ConsumerWidget {
       return a.createdAt.compareTo(b.createdAt);
     });
 
-    // Time range from calculated blocks
-    String timeRange = blockInfo.defaultTimeRange;
+    // Prayer start time from calculated blocks
+    String prayerTime = blockInfo.defaultTimeRange;
     if (calculatedBlocks.isNotEmpty && blockIndex < calculatedBlocks.length) {
       final calcBlock = calculatedBlocks[blockIndex];
-      final startStr = timeFormat.format(calcBlock.start);
-      final endStr = timeFormat.format(calcBlock.end);
-      timeRange = '$startStr - $endStr';
+      prayerTime = timeFormat.format(calcBlock.start);
     }
-
-    // Duration calculation
-    int usedMinutes = 0;
-    for (final t in blockTasks) {
-      if (t.durationMinutes != null) {
-        usedMinutes += t.durationMinutes!;
-      }
-    }
-    final durationText = usedMinutes > 0 ? 'المستخدم: $usedMinutes د' : null;
 
     return AppSection(
       title: blockInfo.label,
-      timeRange: timeRange,
+      timeRange: prayerTime,
       blockColor: blockInfo.color,
       icon: blockInfo.icon,
       isCurrentBlock: false,
-      durationUsageText: durationText,
       onAddNewTask: () {
         onOpenTaskSheet(null, blockInfo.type, dayDate);
       },

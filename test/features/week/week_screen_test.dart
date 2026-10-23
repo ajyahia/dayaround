@@ -53,9 +53,8 @@ void main() {
     await tester.pumpWidget(buildTestApp(const WeekScreen()));
     await tester.pumpAndSettle();
 
-    // Verify Week Title is visible
+    // Verify Week Title is visible (e.g. "الأسبوع 43")
     expect(find.textContaining('الأسبوع'), findsOneWidget);
-    expect(find.textContaining('من السنة'), findsOneWidget);
 
     // Verify Carry Over button is present
     expect(find.byKey(const Key('carry_over_button')), findsOneWidget);
@@ -67,15 +66,15 @@ void main() {
     await tester.tap(find.byKey(const Key('next_week_button')));
     await tester.pumpAndSettle();
 
-    // "هذا الأسبوع" button appears when offset != 0
-    expect(find.text('هذا الأسبوع'), findsOneWidget);
+    // "هذا الأسبوع" icon button appears when offset != 0
+    expect(find.byKey(const Key('current_week_button')), findsOneWidget);
 
     // Tap "هذا الأسبوع" button to return
-    await tester.tap(find.text('هذا الأسبوع'));
+    await tester.tap(find.byKey(const Key('current_week_button')));
     await tester.pumpAndSettle();
 
     // "هذا الأسبوع" button disappears when back on current week
-    expect(find.text('هذا الأسبوع'), findsNothing);
+    expect(find.byKey(const Key('current_week_button')), findsNothing);
 
     // Tap carry over button to open CupertinoActionSheet
     await tester.tap(find.byKey(const Key('carry_over_button')));

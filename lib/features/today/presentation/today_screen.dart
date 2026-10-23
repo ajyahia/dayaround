@@ -377,40 +377,26 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       final blockInfo = PrayerBlockInfo.allBlocks[index];
                       final blockTasks = tasksByBlock[blockInfo.type] ?? [];
 
-                      // Get real calculated time range if available
-                      String timeRange = blockInfo.defaultTimeRange;
+                      // Get real calculated prayer start time if available
+                      String prayerTime = blockInfo.defaultTimeRange;
                       bool isCurrent = false;
 
                       if (calculatedBlocks.isNotEmpty &&
                           index < calculatedBlocks.length) {
                         final calcBlock = calculatedBlocks[index];
-                        final startStr = timeFormat.format(calcBlock.start);
-                        final endStr = timeFormat.format(calcBlock.end);
-                        timeRange = '$startStr - $endStr';
+                        prayerTime = timeFormat.format(calcBlock.start);
                         isCurrent = calcBlock.contains(now);
                       }
-
-                      int usedMinutes = 0;
-                      for (final t in blockTasks) {
-                        if (t.durationMinutes != null) {
-                          usedMinutes += t.durationMinutes!;
-                        }
-                      }
-
-                      final durationUsage = usedMinutes > 0
-                          ? 'المستخدم: $usedMinutes د'
-                          : null;
 
                       final isAddingToThisBlock =
                           _inlineAddingBlock == blockInfo.type;
 
                       return AppSection(
                         title: blockInfo.label,
-                        timeRange: timeRange,
+                        timeRange: prayerTime,
                         blockColor: blockInfo.color,
                         icon: blockInfo.icon,
                         isCurrentBlock: isCurrent,
-                        durationUsageText: durationUsage,
                         onAddNewTask: () {
                           setState(() {
                             _inlineAddingBlock = blockInfo.type;

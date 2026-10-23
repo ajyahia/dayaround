@@ -304,10 +304,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     );
     final weekDays = WeekCalculator.getWeekDays(activeWeekStart);
 
-    final weekTitle = WeekCalculator.getWeekTitleArabic(activeWeekStart);
-    final startDayFormatted = DateFormat('d MMMM', 'ar_EG').format(weekDays.first);
-    final endDayFormatted = DateFormat('d MMMM', 'ar_EG').format(weekDays.last);
-    final weekDateRange = '$startDayFormatted - $endDayFormatted';
+    final weekNumber = WeekCalculator.getWeekNumber(activeWeekStart);
 
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final buttonBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1F767680);
@@ -330,189 +327,150 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // Crisp iOS Header (No blur/foggy artifacts)
+            // Crisp iOS Header (Minimal, clean, icon-only actions)
             SliverToBoxAdapter(
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
                     children: [
-                      // Top Row: Back button (if pushed), Title, Chevrons, Actions
-                      Row(
-                        children: [
-                          if (canPop) ...[
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                margin: const EdgeInsetsDirectional.only(end: 8),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: buttonBg,
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    CupertinoIcons.chevron_back,
-                                    size: 20,
-                                    color: CupertinoColors.systemBlue,
-                                  ),
-                                ),
-                              ),
+                      if (canPop) ...[
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            margin: const EdgeInsetsDirectional.only(end: 8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: buttonBg,
                             ),
-                          ],
-
-                          // Title: "الأسبوع 43 من السنة"
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  weekTitle,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: -0.5,
-                                    color: Color(0xFF007AFF),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  weekDateRange,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Previous week chevron
-                          GestureDetector(
-                            key: const Key('prev_week_button'),
-                            onTap: () => _changeWeek(-1),
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              width: 34,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: buttonBg,
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  CupertinoIcons.chevron_back,
-                                  size: 18,
-                                  color: CupertinoColors.systemBlue,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-
-                          // Next week chevron
-                          GestureDetector(
-                            key: const Key('next_week_button'),
-                            onTap: () => _changeWeek(1),
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              width: 34,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: buttonBg,
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  CupertinoIcons.chevron_forward,
-                                  size: 18,
-                                  color: CupertinoColors.systemBlue,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-
-                          // Carry Over button
-                          GestureDetector(
-                            key: const Key('carry_over_button'),
-                            onTap: () => _showCarryOverActionSheet(weekDays),
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              height: 34,
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: CupertinoColors.systemBlue.withValues(alpha: 0.14),
-                                borderRadius: BorderRadius.circular(17),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.arrow_right_arrow_left,
-                                    size: 15,
-                                    color: CupertinoColors.systemBlue,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    'ترحيل',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: CupertinoColors.systemBlue,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // "هذا الأسبوع" Quick Jump Button (Visible when not on current week)
-                      if (_weekOffset != 0) ...[
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: GestureDetector(
-                            onTap: _goToCurrentWeek,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
+                            child: const Center(
+                              child: Icon(
+                                CupertinoIcons.chevron_back,
+                                size: 20,
                                 color: CupertinoColors.systemBlue,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.calendar_today,
-                                    size: 14,
-                                    color: CupertinoColors.white,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    'هذا الأسبوع',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: CupertinoColors.white,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ),
                         ),
                       ],
+
+                      // Week Number Title (e.g. "الأسبوع 43")
+                      Expanded(
+                        child: Text(
+                          'الأسبوع $weekNumber',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                            color: Color(0xFF007AFF),
+                          ),
+                        ),
+                      ),
+
+                      // Previous week chevron
+                      GestureDetector(
+                        key: const Key('prev_week_button'),
+                        onTap: () => _changeWeek(-1),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: buttonBg,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              CupertinoIcons.chevron_back,
+                              size: 19,
+                              color: CupertinoColors.systemBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Quick jump to current week (Icon only - visible when offset != 0)
+                      if (_weekOffset != 0) ...[
+                        Semantics(
+                          label: 'هذا الأسبوع',
+                          button: true,
+                          child: GestureDetector(
+                            key: const Key('current_week_button'),
+                            onTap: _goToCurrentWeek,
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  CupertinoIcons.calendar_today,
+                                  size: 18,
+                                  color: CupertinoColors.systemBlue,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+
+                      // Next week chevron
+                      GestureDetector(
+                        key: const Key('next_week_button'),
+                        onTap: () => _changeWeek(1),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: buttonBg,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              CupertinoIcons.chevron_forward,
+                              size: 19,
+                              color: CupertinoColors.systemBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      // Carry Over icon button (Icon only)
+                      Semantics(
+                        label: 'ترحيل المهام',
+                        button: true,
+                        child: GestureDetector(
+                          key: const Key('carry_over_button'),
+                          onTap: () => _showCarryOverActionSheet(weekDays),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                CupertinoIcons.arrow_right_arrow_left,
+                                size: 18,
+                                color: CupertinoColors.systemBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

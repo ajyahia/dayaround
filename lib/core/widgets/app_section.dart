@@ -162,32 +162,14 @@ class AppSection extends StatelessWidget {
 
                   const Spacer(),
 
-                  // Time range & duration usage
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        timeRange,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: secondaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (durationUsageText != null) ...[
-                        const SizedBox(height: 1),
-                        Text(
-                          durationUsageText!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isDurationExceeded
-                                ? CupertinoColors.systemOrange.resolveFrom(context)
-                                : secondaryColor,
-                            fontWeight: isDurationExceeded ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ],
+                  // Prayer start time
+                  Text(
+                    timeRange,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: secondaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
