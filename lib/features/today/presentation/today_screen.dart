@@ -207,10 +207,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final timeFormat = DateFormat('hh:mm a', 'ar_EG');
 
     return CupertinoPageScaffold(
-      child: Stack(
-        children: [
-          CustomScrollView(
-            slivers: [
+      child: CustomScrollView(
+        slivers: [
               // Crisp iOS Large Title Header (Zero blur/foggy artifacts)
               SliverToBoxAdapter(
                 child: SafeArea(
@@ -463,49 +461,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ),
 
-              // Bottom breathing space for floating action button
+              // Bottom breathing space
               SliverToBoxAdapter(
                 child: SizedBox(
-                  height: MediaQuery.paddingOf(context).bottom + 90,
+                  height: MediaQuery.paddingOf(context).bottom + 24,
                 ),
               ),
             ],
           ),
-
-          // Floating (+) Action Button
-          PositionedDirectional(
-            bottom: MediaQuery.paddingOf(context).bottom + 24,
-            start: 24,
-            child: GestureDetector(
-              onTap: () {
-                _openDetailsSheet(defaultBlock: PrayerBlockType.afterDhuhr);
-              },
-              child: Container(
-                width: 58,
-                height: 58,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF007AFF),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x66007AFF),
-                      blurRadius: 18,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(
-                    CupertinoIcons.plus,
-                    size: 30,
-                    color: CupertinoColors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
