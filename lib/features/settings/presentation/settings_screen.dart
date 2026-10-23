@@ -8,6 +8,8 @@ import 'package:jimy/features/prayer_times/presentation/screens/calculation_sett
 import 'package:jimy/features/prayer_times/presentation/screens/location_settings_screen.dart';
 import 'package:jimy/features/prayer_times/presentation/screens/madhab_settings_screen.dart';
 import 'package:jimy/features/settings/presentation/appearance_settings_screen.dart';
+import 'package:jimy/features/week/presentation/controllers/week_settings_controller.dart';
+import 'package:jimy/features/week/presentation/screens/week_start_settings_screen.dart';
 import 'package:jimy/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -30,6 +32,7 @@ class SettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final location = ref.watch(currentLocationProvider);
     final prayerSettings = ref.watch(prayerSettingsProvider);
+    final weekStartDay = ref.watch(weekStartDayProvider);
 
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
@@ -153,8 +156,14 @@ class SettingsScreen extends ConsumerWidget {
                               icon: CupertinoIcons.calendar,
                               iconBackgroundColor: CupertinoColors.systemIndigo,
                               title: l10n.weekStart,
-                              value: l10n.soon,
-                              onTap: () {},
+                              value: weekStartDay.labelArabic,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  CupertinoPageRoute(
+                                    builder: (_) => const WeekStartSettingsScreen(),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),

@@ -5,12 +5,14 @@ class SwipeableTaskRow extends StatefulWidget {
   final Widget child;
   final VoidCallback onDetails;
   final VoidCallback onDelete;
+  final VoidCallback? onMove;
 
   const SwipeableTaskRow({
     super.key,
     required this.child,
     required this.onDetails,
     required this.onDelete,
+    this.onMove,
   });
 
   @override
@@ -21,7 +23,7 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   double _dragExtent = 0.0;
-  static const double _actionWidth = 148.0;
+  double get _actionWidth => widget.onMove != null ? 200.0 : 148.0;
 
   @override
   void initState() {
@@ -101,7 +103,7 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
                         widget.onDetails();
                       },
                       child: Container(
-                        width: 62,
+                        width: widget.onMove != null ? 56 : 62,
                         decoration: BoxDecoration(
                           color: detailsBg,
                           borderRadius: BorderRadius.circular(16),
@@ -112,7 +114,7 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
                             Icon(
                               CupertinoIcons.info,
                               color: CupertinoColors.white,
-                              size: 22,
+                              size: 20,
                             ),
                             SizedBox(height: 3),
                             Text(
@@ -127,7 +129,44 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
+
+                    if (widget.onMove != null) ...[
+                      // Move button (Blue pill with arrows & text)
+                      GestureDetector(
+                        onTap: () {
+                          _close();
+                          widget.onMove!();
+                        },
+                        child: Container(
+                          width: 56,
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.systemBlue,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.arrow_right_arrow_left,
+                                color: CupertinoColors.white,
+                                size: 20,
+                              ),
+                              SizedBox(height: 3),
+                              Text(
+                                'نقل',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
 
                     // Delete button (Red pill with trash icon & text)
                     GestureDetector(
@@ -136,7 +175,7 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
                         widget.onDelete();
                       },
                       child: Container(
-                        width: 62,
+                        width: widget.onMove != null ? 56 : 62,
                         decoration: BoxDecoration(
                           color: CupertinoColors.systemRed,
                           borderRadius: BorderRadius.circular(16),
@@ -147,7 +186,7 @@ class _SwipeableTaskRowState extends State<SwipeableTaskRow>
                             Icon(
                               CupertinoIcons.trash_fill,
                               color: CupertinoColors.white,
-                              size: 22,
+                              size: 20,
                             ),
                             SizedBox(height: 3),
                             Text(
