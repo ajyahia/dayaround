@@ -218,111 +218,125 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         children: [
           CustomScrollView(
             slivers: [
-              CupertinoSliverNavigationBar(
-                backgroundColor: isDark
-                    ? const Color(0xFF000000)
-                    : const Color(0xFFF2F2F7),
-                border: null,
-                largeTitle: const Text(
-                  'اليوم',
-                  style: TextStyle(
-                    color: Color(0xFF007AFF),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Week button
-                    Semantics(
-                      label: 'الأسبوع',
-                      button: true,
-                      child: GestureDetector(
-                        key: const Key('week_button'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(builder: (_) => const WeekScreen()),
-                          );
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: circleBtnBg,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              CupertinoIcons.calendar,
-                              size: 18,
-                              color: Color(0xFF007AFF),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    // Settings button
-                    Semantics(
-                      label: 'الإعدادات',
-                      button: true,
-                      child: GestureDetector(
-                        key: const Key('settings_button'),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(builder: (_) => const SettingsScreen()),
-                          );
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 34,
-                          height: 34,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: circleBtnBg,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              CupertinoIcons.gear,
-                              size: 18,
-                              color: Color(0xFF007AFF),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    // More Menu (...)
-                    GestureDetector(
-                      key: const Key('more_button'),
-                      onTap: _showMoreMenu,
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: circleBtnBg,
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            CupertinoIcons.ellipsis,
-                            size: 18,
+              // Crisp iOS Large Title Header (Zero blur/foggy artifacts)
+              SliverToBoxAdapter(
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Large Title "اليوم"
+                        const Text(
+                          'اليوم',
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.6,
                             color: Color(0xFF007AFF),
                           ),
                         ),
-                      ),
+
+                        // Action Buttons: Week, Settings, More
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Week button
+                            Semantics(
+                              label: 'الأسبوع',
+                              button: true,
+                              child: GestureDetector(
+                                key: const Key('week_button'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (_) => const WeekScreen()),
+                                  );
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: circleBtnBg,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      CupertinoIcons.calendar,
+                                      size: 19,
+                                      color: Color(0xFF007AFF),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Settings button
+                            Semantics(
+                              label: 'الإعدادات',
+                              button: true,
+                              child: GestureDetector(
+                                key: const Key('settings_button'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(builder: (_) => const SettingsScreen()),
+                                  );
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: circleBtnBg,
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      CupertinoIcons.gear,
+                                      size: 19,
+                                      color: Color(0xFF007AFF),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // More Menu (...)
+                            GestureDetector(
+                              key: const Key('more_button'),
+                              onTap: _showMoreMenu,
+                              behavior: HitTestBehavior.opaque,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: circleBtnBg,
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    CupertinoIcons.ellipsis,
+                                    size: 19,
+                                    color: Color(0xFF007AFF),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
 
-              // Prayer Times Widget Card (Image 1 style: Countdown + Hijri date + 6 horizontal prayers)
+              // Prayer Times Widget Card (Image 1 style: Color-coded prayers, countdown, Hijri date)
               SliverToBoxAdapter(
                 child: PrayerTimesWidgetCard(
                   date: now,
@@ -353,41 +367,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   ),
                 ),
               ),
-
-              // Active Inline Task Editor if triggered (Image 2 style)
-              if (_inlineAddingBlock != null)
-                SliverToBoxAdapter(
-                  child: InlineTaskEditor(
-                    block: _inlineAddingBlock!,
-                    onSave: (title, notes) {
-                      ref.read(taskRepositoryProvider).addTask(
-                        Task(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
-                          title: title,
-                          notes: notes,
-                          date: todayStr,
-                          block: _inlineAddingBlock!,
-                          createdAt: DateTime.now(),
-                        ),
-                      );
-                      setState(() {
-                        _inlineAddingBlock = null;
-                      });
-                    },
-                    onCancel: () {
-                      setState(() {
-                        _inlineAddingBlock = null;
-                      });
-                    },
-                    onOpenDetails: () {
-                      final block = _inlineAddingBlock!;
-                      setState(() {
-                        _inlineAddingBlock = null;
-                      });
-                      _openDetailsSheet(defaultBlock: block);
-                    },
-                  ),
-                ),
 
               // Prayer Block Sections
               SliverPadding(
@@ -422,6 +401,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                           ? 'المستخدم: $usedMinutes د'
                           : null;
 
+                      final isAddingToThisBlock =
+                          _inlineAddingBlock == blockInfo.type;
+
                       return AppSection(
                         title: blockInfo.label,
                         timeRange: timeRange,
@@ -434,6 +416,37 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                             _inlineAddingBlock = blockInfo.type;
                           });
                         },
+                        inlineEditor: isAddingToThisBlock
+                            ? InlineTaskEditor(
+                                block: blockInfo.type,
+                                onSave: (title, notes) {
+                                  ref.read(taskRepositoryProvider).addTask(
+                                    Task(
+                                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                      title: title,
+                                      notes: notes,
+                                      date: todayStr,
+                                      block: blockInfo.type,
+                                      createdAt: DateTime.now(),
+                                    ),
+                                  );
+                                  setState(() {
+                                    _inlineAddingBlock = null;
+                                  });
+                                },
+                                onCancel: () {
+                                  setState(() {
+                                    _inlineAddingBlock = null;
+                                  });
+                                },
+                                onOpenDetails: () {
+                                  setState(() {
+                                    _inlineAddingBlock = null;
+                                  });
+                                  _openDetailsSheet(defaultBlock: blockInfo.type);
+                                },
+                              )
+                            : null,
                         children: [
                           for (final task in blockTasks)
                             SwipeableTaskRow(

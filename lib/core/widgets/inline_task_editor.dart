@@ -7,6 +7,7 @@ class InlineTaskEditor extends StatefulWidget {
   final void Function(String title, String? notes) onSave;
   final VoidCallback onCancel;
   final VoidCallback onOpenDetails;
+  final bool isEmbedded;
 
   const InlineTaskEditor({
     super.key,
@@ -14,6 +15,7 @@ class InlineTaskEditor extends StatefulWidget {
     required this.onSave,
     required this.onCancel,
     required this.onOpenDetails,
+    this.isEmbedded = true,
   });
 
   @override
@@ -64,19 +66,23 @@ class _InlineTaskEditorState extends State<InlineTaskEditor> {
     final blockInfo = PrayerBlockInfo.allBlocks.firstWhere((b) => b.type == widget.block);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x18000000),
-            blurRadius: 12,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
+      margin: widget.isEmbedded
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: widget.isEmbedded
+          ? null
+          : BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x18000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

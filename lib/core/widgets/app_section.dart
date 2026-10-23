@@ -9,6 +9,7 @@ class AppSection extends StatelessWidget {
   final String? durationUsageText;
   final bool isDurationExceeded;
   final List<Widget> children;
+  final Widget? inlineEditor;
   final VoidCallback? onAddNewTask;
 
   const AppSection({
@@ -21,6 +22,7 @@ class AppSection extends StatelessWidget {
     this.durationUsageText,
     this.isDurationExceeded = false,
     required this.children,
+    this.inlineEditor,
     this.onAddNewTask,
   });
 
@@ -31,8 +33,8 @@ class AppSection extends StatelessWidget {
     final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
     final separatorColor = CupertinoColors.separator.resolveFrom(context);
 
-    // Case 1: Empty & Not current block -> Minimal peaceful compact tile (saves vertical clutter)
-    if (children.isEmpty && !isCurrentBlock) {
+    // Case 1: Empty & Not current block & Not adding task -> Minimal peaceful compact tile
+    if (children.isEmpty && !isCurrentBlock && inlineEditor == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: GestureDetector(
@@ -217,7 +219,7 @@ class AppSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 child: Column(
                   children: [
-                    if (children.isEmpty)
+                    if (children.isEmpty && inlineEditor == null)
                       // Current block empty state
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -248,10 +250,12 @@ class AppSection extends StatelessWidget {
                           ],
                         ),
                       )
-                    else
+                    else if (children.isEmpty && inlineEditor != null)
+                      inlineEditor!
+                    else ...[
                       for (int i = 0; i < children.length; i++) ...[
                         children[i],
-                        if (i < children.length - 1)
+                        if (i < children.length - 1 || inlineEditor != null)
                           Padding(
                             padding: const EdgeInsetsDirectional.only(start: 52),
                             child: Container(
@@ -260,6 +264,8 @@ class AppSection extends StatelessWidget {
                             ),
                           ),
                       ],
+                      ?inlineEditor,
+                    ],
                   ],
                 ),
               ),
