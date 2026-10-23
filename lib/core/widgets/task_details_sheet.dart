@@ -26,7 +26,6 @@ class _TaskDetailsSheetState extends State<TaskDetailsSheet> {
   late TextEditingController _titleController;
   late TextEditingController _notesController;
   late PrayerBlockType _selectedBlock;
-  int? _duration;
 
   @override
   void initState() {
@@ -34,7 +33,6 @@ class _TaskDetailsSheetState extends State<TaskDetailsSheet> {
     _titleController = TextEditingController(text: widget.initialTitle);
     _notesController = TextEditingController(text: widget.initialNotes);
     _selectedBlock = widget.initialBlock;
-    _duration = widget.initialDuration;
   }
 
   @override
@@ -50,7 +48,7 @@ class _TaskDetailsSheetState extends State<TaskDetailsSheet> {
     widget.onSave(
       title,
       _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-      _duration,
+      null,
       _selectedBlock,
     );
     Navigator.of(context).pop();
@@ -199,60 +197,6 @@ class _TaskDetailsSheetState extends State<TaskDetailsSheet> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
-
-                // Card 3: Duration Selector
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: Text(
-                    'المدة المتوقعة (اختياري)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: secondaryColor,
-                    ),
-                  ),
-                ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    color: cardBg,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final min in <int?>[null, 15, 30, 45, 60, 90])
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _duration = min;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: _duration == min
-                                    ? CupertinoColors.systemBlue
-                                    : CupertinoColors.systemGrey5.resolveFrom(context),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                min == null ? 'بدون مدة' : '$min دقيقة',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: _duration == min
-                                      ? CupertinoColors.white
-                                      : labelColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 30),
               ],
             ),

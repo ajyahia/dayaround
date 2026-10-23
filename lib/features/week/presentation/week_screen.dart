@@ -349,7 +349,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                             ),
                             child: const Center(
                               child: Icon(
-                                CupertinoIcons.chevron_back,
+                                CupertinoIcons.chevron_right,
                                 size: 20,
                                 color: CupertinoColors.systemBlue,
                               ),
@@ -371,10 +371,10 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                         ),
                       ),
 
-                      // Previous week chevron
+                      // Next week chevron (pointing right > towards future)
                       GestureDetector(
-                        key: const Key('prev_week_button'),
-                        onTap: () => _changeWeek(-1),
+                        key: const Key('next_week_button'),
+                        onTap: () => _changeWeek(1),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
                           width: 36,
@@ -385,7 +385,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                           ),
                           child: const Center(
                             child: Icon(
-                              CupertinoIcons.chevron_back,
+                              CupertinoIcons.chevron_right,
                               size: 19,
                               color: CupertinoColors.systemBlue,
                             ),
@@ -423,10 +423,10 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                         const SizedBox(width: 8),
                       ],
 
-                      // Next week chevron
+                      // Previous week chevron (pointing left < towards past)
                       GestureDetector(
-                        key: const Key('next_week_button'),
-                        onTap: () => _changeWeek(1),
+                        key: const Key('prev_week_button'),
+                        onTap: () => _changeWeek(-1),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
                           width: 36,
@@ -437,7 +437,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                           ),
                           child: const Center(
                             child: Icon(
-                              CupertinoIcons.chevron_forward,
+                              CupertinoIcons.chevron_left,
                               size: 19,
                               color: CupertinoColors.systemBlue,
                             ),

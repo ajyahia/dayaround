@@ -139,9 +139,8 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                       overflow: TextOverflow.ellipsis,
                     ),
 
-                    // Subtitle metadata line (tag, duration, notes)
+                    // Subtitle metadata line (tag, notes)
                     if (widget.blockLabel != null ||
-                        widget.durationMinutes != null ||
                         (widget.notes != null && widget.notes!.trim().isNotEmpty)) ...[
                       const SizedBox(height: 3),
                       Row(
@@ -153,23 +152,6 @@ class _TaskRowState extends State<TaskRow> with SingleTickerProviderStateMixin {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                                 color: widget.blockColor,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                          ],
-                          if (widget.durationMinutes != null) ...[
-                            Icon(
-                              CupertinoIcons.clock,
-                              size: 13,
-                              color: CupertinoColors.systemRed.resolveFrom(context),
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              '${widget.durationMinutes} د',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: CupertinoColors.systemRed.resolveFrom(context),
                               ),
                             ),
                             const SizedBox(width: 6),

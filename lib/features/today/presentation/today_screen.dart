@@ -38,7 +38,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           Task(
             id: '1',
             title: 'قيام الليل وركعتي الفجر',
-            durationMinutes: 30,
             isDone: false,
             date: todayStr,
             block: PrayerBlockType.beforeFajr,
@@ -47,7 +46,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           Task(
             id: '2',
             title: 'أذكار الصباح وقراءة ورد القرآن',
-            durationMinutes: 20,
             isDone: true,
             date: todayStr,
             block: PrayerBlockType.afterFajr,
@@ -56,7 +54,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           Task(
             id: '3',
             title: 'شراء خبز وإفطار مع العائلة',
-            durationMinutes: 15,
             isDone: false,
             date: todayStr,
             block: PrayerBlockType.afterFajr,
@@ -65,7 +62,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           Task(
             id: '4',
             title: 'صلاة الظهر وسننها الراتبة',
-            durationMinutes: 15,
             isDone: true,
             date: todayStr,
             block: PrayerBlockType.afterDhuhr,
@@ -75,7 +71,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             id: '5',
             title: 'ميتنج مع مروة بخصوص المشروع',
             notes: 'مراجعة الملاحظات الأخيرة',
-            durationMinutes: 30,
             isDone: false,
             date: todayStr,
             block: PrayerBlockType.afterDhuhr,
@@ -85,7 +80,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             id: '6',
             title: 'مشي لمدة نصف ساعة وأذكار المساء',
             notes: 'في الحديقة العامة',
-            durationMinutes: 30,
             isDone: false,
             date: todayStr,
             block: PrayerBlockType.afterAsr,
@@ -94,7 +88,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           Task(
             id: '7',
             title: 'قراءة ورد ما قبل النوم والاستعداد للغد',
-            durationMinutes: 15,
             isDone: false,
             date: todayStr,
             block: PrayerBlockType.afterIsha,
