@@ -1,17 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:jimy/core/theme/prayer_block_theme.dart';
 import 'package:jimy/core/widgets/app_section.dart';
 import 'package:jimy/core/widgets/inline_task_editor.dart';
 import 'package:jimy/core/widgets/summary_card.dart';
+import 'package:jimy/core/widgets/swipeable_task_row.dart';
 import 'package:jimy/core/widgets/task_details_sheet.dart';
 import 'package:jimy/core/widgets/task_row.dart';
 import 'package:jimy/features/prayer_times/presentation/controllers/prayer_times_providers.dart';
 import 'package:jimy/features/prayer_times/presentation/screens/location_settings_screen.dart';
-import 'package:jimy/features/prayer_times/presentation/widgets/prayer_countdown_card.dart';
-import 'package:jimy/features/prayer_times/presentation/widgets/prayer_times_section.dart';
+import 'package:jimy/features/prayer_times/presentation/widgets/prayer_times_widget_card.dart';
 import 'package:jimy/features/settings/presentation/settings_screen.dart';
 import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/features/tasks/presentation/controllers/tasks_providers.dart';
@@ -211,15 +210,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final circleBtnBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1F767680);
 
-    final location = ref.watch(currentLocationProvider);
-    final cityName = location.name;
-
-    // Gregorian & Hijri Dates
-    final gregorianDate = DateFormat('EEEE، d MMMM y', 'ar_EG').format(now);
-    HijriCalendar.setLocal('ar');
-    final hijri = HijriCalendar.fromDate(now);
-    final hijriDate = '${hijri.hDay} ${hijri.longMonthName} ${hijri.hYear} هـ';
-
     final calculatedBlocks = ref.watch(dayBlocksProvider(now));
     final timeFormat = DateFormat('hh:mm a', 'ar_EG');
 
@@ -229,6 +219,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           CustomScrollView(
             slivers: [
               CupertinoSliverNavigationBar(
+                backgroundColor: isDark
+                    ? const Color(0xFF000000)
+                    : const Color(0xFFF2F2F7),
+                border: null,
                 largeTitle: const Text(
                   'اليوم',
                   style: TextStyle(
@@ -328,107 +322,49 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ),
 
-              // City & Date Header (Apple Reminders Subtitle)
+              // Prayer Times Widget Card (Image 1 style: Countdown + Hijri date + 6 horizontal prayers)
+              SliverToBoxAdapter(
+                child: PrayerTimesWidgetCard(
+                  date: now,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => const LocationSettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // Today Tasks Summary Bar
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (_) => const LocationSettingsScreen(),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(
-                          CupertinoIcons.location_solid,
-                          size: 15,
-                          color: Color(0xFF007AFF),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          cityName,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF007AFF),
-                          ),
-                        ),
-                        const Text(
-                          ' • ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: CupertinoColors.secondaryLabel,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            '$gregorianDate | $hijriDate',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: CupertinoColors.secondaryLabel,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
+                  child: SummaryCard(
+                    title: 'مهام اليوم',
+                    value: '$doneTasks / $totalTasks',
+                    subtitle: totalTasks > 0
+                        ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}% من مهام اليوم'
+                        : 'أضف مهامك لترتيب يومك مع مواقيت الصلاة',
+                    icon: CupertinoIcons.checkmark_circle_fill,
+                    accentColor: const Color(0xFFFF9500),
+                    onTap: () {},
                   ),
                 ),
               ),
 
-              // Smart List Cards (Live next prayer countdown + tasks)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Card 1: Next Prayer with Live Countdown
-                        const Expanded(
-                          child: PrayerCountdownCard(),
-                        ),
-                        const SizedBox(width: 12),
-
-                        // Card 2: Today Tasks
-                        Expanded(
-                          child: SummaryCard(
-                            title: 'مهام اليوم',
-                            value: '$doneTasks / $totalTasks',
-                            subtitle: totalTasks > 0
-                                ? 'تم إنجاز ${(doneTasks / totalTasks * 100).round()}%'
-                                : null,
-                            icon: CupertinoIcons.checkmark_circle_fill,
-                            accentColor: const Color(0xFFFF9500),
-                            onTap: () {},
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // The six prayer times in a CupertinoListSection.insetGrouped
-              SliverToBoxAdapter(
-                child: PrayerTimesSection(date: now),
-              ),
-
-              // Active Inline Task Editor if triggered
+              // Active Inline Task Editor if triggered (Image 2 style)
               if (_inlineAddingBlock != null)
                 SliverToBoxAdapter(
                   child: InlineTaskEditor(
                     block: _inlineAddingBlock!,
-                    onSave: (title) {
+                    onSave: (title, notes) {
                       ref.read(taskRepositoryProvider).addTask(
                         Task(
                           id: DateTime.now().millisecondsSinceEpoch.toString(),
                           title: title,
+                          notes: notes,
                           date: todayStr,
                           block: _inlineAddingBlock!,
                           createdAt: DateTime.now(),
@@ -500,21 +436,32 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                         },
                         children: [
                           for (final task in blockTasks)
-                            TaskRow(
-                              id: task.id,
-                              title: task.title,
-                              notes: task.notes,
-                              durationMinutes: task.durationMinutes,
-                              isDone: task.isDone,
-                              blockColor: blockInfo.color,
-                              onToggle: (val) {
-                                ref
-                                    .read(taskRepositoryProvider)
-                                    .toggleDone(task.id);
-                              },
-                              onInfoTap: () {
+                            SwipeableTaskRow(
+                              key: ValueKey(task.id),
+                              onDetails: () {
                                 _openDetailsSheet(task: task);
                               },
+                              onDelete: () {
+                                ref
+                                    .read(taskRepositoryProvider)
+                                    .deleteTask(task.id);
+                              },
+                              child: TaskRow(
+                                id: task.id,
+                                title: task.title,
+                                notes: task.notes,
+                                durationMinutes: task.durationMinutes,
+                                isDone: task.isDone,
+                                blockColor: blockInfo.color,
+                                onToggle: (val) {
+                                  ref
+                                      .read(taskRepositoryProvider)
+                                      .toggleDone(task.id);
+                                },
+                                onInfoTap: () {
+                                  _openDetailsSheet(task: task);
+                                },
+                              ),
                             ),
                         ],
                       );

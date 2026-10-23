@@ -79,18 +79,11 @@ class AppSection extends StatelessWidget {
                 Text(
                   timeRange,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: secondaryColor.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: secondaryColor.withValues(alpha: 0.8),
                   ),
                 ),
-                if (onAddNewTask != null) ...[
-                  const SizedBox(width: 10),
-                  Icon(
-                    CupertinoIcons.plus,
-                    size: 15,
-                    color: secondaryColor.withValues(alpha: 0.6),
-                  ),
-                ],
               ],
             ),
           ),
@@ -104,118 +97,98 @@ class AppSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-            child: Row(
-              children: [
-                // Small rounded-square icon
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: blockColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      icon,
-                      size: 14,
-                      color: CupertinoColors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-
-                // Block title
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: blockColor,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-
-                // "الآن" pill if current block
-                if (isCurrentBlock) ...[
-                  const SizedBox(width: 8),
+          // Section Header (tappable to quickly add a task)
+          GestureDetector(
+            onTap: onAddNewTask,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+              child: Row(
+                children: [
+                  // Small rounded-square icon
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    width: 24,
+                    height: 24,
                     decoration: BoxDecoration(
-                      color: blockColor.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: blockColor.withValues(alpha: 0.4),
-                        width: 0.8,
-                      ),
+                      color: blockColor,
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      'الآن',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: blockColor,
+                    child: Center(
+                      child: Icon(
+                        icon,
+                        size: 14,
+                        color: CupertinoColors.white,
                       ),
                     ),
                   ),
-                ],
+                  const SizedBox(width: 8),
 
-                const Spacer(),
-
-                // Time range & duration usage
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      timeRange,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: secondaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  // Block title
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: blockColor,
+                      letterSpacing: -0.3,
                     ),
-                    if (durationUsageText != null) ...[
-                      const SizedBox(height: 1),
-                      Text(
-                        durationUsageText!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDurationExceeded
-                              ? CupertinoColors.systemOrange.resolveFrom(context)
-                              : secondaryColor,
-                          fontWeight: isDurationExceeded ? FontWeight.w600 : FontWeight.normal,
+                  ),
+
+                  // "الآن" pill if current block
+                  if (isCurrentBlock) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: blockColor.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: blockColor.withValues(alpha: 0.4),
+                          width: 0.8,
                         ),
                       ),
-                    ],
-                  ],
-                ),
-
-                // Quick add (+) button in header
-                if (onAddNewTask != null) ...[
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: onAddNewTask,
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: blockColor.withValues(alpha: 0.12),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          CupertinoIcons.plus,
-                          size: 14,
+                      child: Text(
+                        'الآن',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
                           color: blockColor,
                         ),
                       ),
                     ),
+                  ],
+
+                  const Spacer(),
+
+                  // Time range & duration usage
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        timeRange,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: secondaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (durationUsageText != null) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          durationUsageText!,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDurationExceeded
+                                ? CupertinoColors.systemOrange.resolveFrom(context)
+                                : secondaryColor,
+                            fontWeight: isDurationExceeded ? FontWeight.w600 : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
-              ],
+              ),
             ),
           ),
 
@@ -263,7 +236,7 @@ class AppSection extends StatelessWidget {
                               GestureDetector(
                                 onTap: onAddNewTask,
                                 child: Text(
-                                  '+ إضافة',
+                                  'إضافة مهمة',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,

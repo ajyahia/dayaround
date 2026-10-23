@@ -21,34 +21,34 @@ void main() {
       expect(blocks.length, equals(6));
 
       expect(blocks[0].id, equals(PrayerBlockType.beforeFajr));
-      expect(blocks[0].label, equals('قبل الفجر'));
+      expect(blocks[0].label, equals('قيام الليل'));
       expect(blocks[0].start.hour, equals(0));
       expect(blocks[0].start.minute, equals(0));
       expect(blocks[0].end, equals(prayerTimes.fajr));
 
       expect(blocks[1].id, equals(PrayerBlockType.afterFajr));
-      expect(blocks[1].label, equals('بعد الفجر'));
+      expect(blocks[1].label, equals('الفجر'));
       expect(blocks[1].start, equals(prayerTimes.fajr));
       expect(blocks[1].end, equals(prayerTimes.dhuhr));
       expect(blocks[1].sunrise, equals(prayerTimes.sunrise));
 
       expect(blocks[2].id, equals(PrayerBlockType.afterDhuhr));
-      expect(blocks[2].label, equals('بعد الظهر'));
+      expect(blocks[2].label, equals('الظهر'));
       expect(blocks[2].start, equals(prayerTimes.dhuhr));
       expect(blocks[2].end, equals(prayerTimes.asr));
 
       expect(blocks[3].id, equals(PrayerBlockType.afterAsr));
-      expect(blocks[3].label, equals('بعد العصر'));
+      expect(blocks[3].label, equals('العصر'));
       expect(blocks[3].start, equals(prayerTimes.asr));
       expect(blocks[3].end, equals(prayerTimes.maghrib));
 
       expect(blocks[4].id, equals(PrayerBlockType.afterMaghrib));
-      expect(blocks[4].label, equals('بعد المغرب'));
+      expect(blocks[4].label, equals('المغرب'));
       expect(blocks[4].start, equals(prayerTimes.maghrib));
       expect(blocks[4].end, equals(prayerTimes.isha));
 
       expect(blocks[5].id, equals(PrayerBlockType.afterIsha));
-      expect(blocks[5].label, equals('بعد العشاء'));
+      expect(blocks[5].label, equals('العشاء'));
       expect(blocks[5].start, equals(prayerTimes.isha));
       expect(blocks[5].end.hour, equals(23));
       expect(blocks[5].end.minute, equals(59));

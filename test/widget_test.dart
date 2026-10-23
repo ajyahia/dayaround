@@ -40,7 +40,6 @@ void main() {
 
     // Verify Today screen is visible with smart cards, action buttons, and sample sections
     expect(find.text('اليوم'), findsWidgets);
-    expect(find.text('الصلاة القادمة'), findsOneWidget);
     expect(find.text('مهام اليوم'), findsOneWidget);
     expect(find.byKey(const Key('settings_button')), findsOneWidget);
     expect(find.byKey(const Key('week_button')), findsOneWidget);
