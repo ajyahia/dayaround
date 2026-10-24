@@ -26,6 +26,10 @@ void main() {
         settings: settings,
       );
 
+      // Cairo is UTC+2 in winter (January 15).
+      // Converting to Cairo time ensures test passes regardless of runner timezone.
+      DateTime toCairo(DateTime dt) => dt.toUtc().add(const Duration(hours: 2));
+
       // Known official times for Cairo on 15 January:
       // Fajr: 05:20 - 05:21
       // Sunrise: 06:51 - 06:52
@@ -33,40 +37,40 @@ void main() {
       // Asr: 14:58
       // Maghrib: 17:17 - 17:18
       // Isha: 18:38 - 18:39
-      final knownFajr = DateTime(2024, 1, 15, 5, 20);
-      final knownSunrise = DateTime(2024, 1, 15, 6, 52);
-      final knownDhuhr = DateTime(2024, 1, 15, 12, 5);
-      final knownAsr = DateTime(2024, 1, 15, 14, 58);
-      final knownMaghrib = DateTime(2024, 1, 15, 17, 18);
-      final knownIsha = DateTime(2024, 1, 15, 18, 39);
+      final knownFajr = DateTime.utc(2024, 1, 15, 5, 20);
+      final knownSunrise = DateTime.utc(2024, 1, 15, 6, 52);
+      final knownDhuhr = DateTime.utc(2024, 1, 15, 12, 5);
+      final knownAsr = DateTime.utc(2024, 1, 15, 14, 58);
+      final knownMaghrib = DateTime.utc(2024, 1, 15, 17, 18);
+      final knownIsha = DateTime.utc(2024, 1, 15, 18, 39);
 
       expect(
-        times.fajr.difference(knownFajr).inMinutes.abs(),
+        toCairo(times.fajr).difference(knownFajr).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Fajr should be within ±2 minutes of known value',
       );
       expect(
-        times.sunrise.difference(knownSunrise).inMinutes.abs(),
+        toCairo(times.sunrise).difference(knownSunrise).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Sunrise should be within ±2 minutes of known value',
       );
       expect(
-        times.dhuhr.difference(knownDhuhr).inMinutes.abs(),
+        toCairo(times.dhuhr).difference(knownDhuhr).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Dhuhr should be within ±2 minutes of known value',
       );
       expect(
-        times.asr.difference(knownAsr).inMinutes.abs(),
+        toCairo(times.asr).difference(knownAsr).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Asr should be within ±2 minutes of known value',
       );
       expect(
-        times.maghrib.difference(knownMaghrib).inMinutes.abs(),
+        toCairo(times.maghrib).difference(knownMaghrib).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Maghrib should be within ±2 minutes of known value',
       );
       expect(
-        times.isha.difference(knownIsha).inMinutes.abs(),
+        toCairo(times.isha).difference(knownIsha).inMinutes.abs(),
         lessThanOrEqualTo(2),
         reason: 'Isha should be within ±2 minutes of known value',
       );
