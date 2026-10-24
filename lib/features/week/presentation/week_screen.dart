@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:jimy/core/theme/prayer_block_theme.dart';
-import 'package:jimy/core/widgets/task_details_sheet.dart';
-import 'package:jimy/features/settings/presentation/settings_screen.dart';
 import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/features/tasks/presentation/controllers/tasks_providers.dart';
 import 'package:jimy/features/week/domain/week_calculator.dart';
 import 'package:jimy/features/week/presentation/controllers/week_settings_controller.dart';
+import 'package:jimy/features/week/presentation/widgets/compact_daily_widget.dart';
 import 'package:jimy/features/week/presentation/widgets/week_day_column.dart';
+import 'package:jimy/features/week/presentation/widgets/week_header_banner.dart';
 
 class WeekScreen extends ConsumerStatefulWidget {
   const WeekScreen({super.key});
@@ -20,9 +20,9 @@ class WeekScreen extends ConsumerStatefulWidget {
 
 class _WeekScreenState extends ConsumerState<WeekScreen> {
   int _weekOffset = 0;
-  final ScrollController _scrollController = ScrollController();
-  final GlobalKey _todayKey = GlobalKey();
-  bool _hasScrolledToToday = false;
+  bool _isCompactWidgetMode = false;
+  String? _focusedDayDateStr;
+  String? _manuallyExpandedDateStr;
 
   @override
   void initState() {
@@ -30,14 +30,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _seedStarterTasksIfEmpty();
-      _scrollToTodayIfNeeded();
     });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   void _seedStarterTasksIfEmpty() {
@@ -114,86 +107,22 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     }
   }
 
-  void _scrollToTodayIfNeeded() {
-    if (_hasScrolledToToday) return;
-    if (_weekOffset == 0 && _todayKey.currentContext != null) {
-      _hasScrolledToToday = true;
-      Scrollable.ensureVisible(
-        _todayKey.currentContext!,
-        alignment: 0.15,
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   void _changeWeek(int delta) {
     HapticFeedback.selectionClick();
     setState(() {
       _weekOffset += delta;
-      _hasScrolledToToday = false;
+      _focusedDayDateStr = null;
+      _manuallyExpandedDateStr = null;
     });
-    if (_weekOffset == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToTodayIfNeeded();
-      });
-    }
   }
 
   void _goToCurrentWeek() {
     HapticFeedback.mediumImpact();
     setState(() {
       _weekOffset = 0;
-      _hasScrolledToToday = false;
+      _focusedDayDateStr = null;
+      _manuallyExpandedDateStr = null;
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToTodayIfNeeded();
-    });
-  }
-
-  void _openTaskDetailsSheet({
-    Task? task,
-    PrayerBlockType defaultBlock = PrayerBlockType.afterDhuhr,
-    required DateTime targetDate,
-  }) {
-    final targetDateStr = Task.formatDate(targetDate);
-
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (context) => TaskDetailsSheet(
-        initialTitle: task?.title,
-        initialNotes: task?.notes,
-        initialDuration: task?.durationMinutes,
-        initialBlock: task?.block ?? defaultBlock,
-        onSave: (title, notes, duration, block) {
-          final repo = ref.read(taskRepositoryProvider);
-          if (task != null) {
-            repo.updateTask(
-              task.copyWith(
-                title: title,
-                notes: notes,
-                clearNotes: notes == null,
-                durationMinutes: duration,
-                clearDuration: duration == null,
-                block: block,
-              ),
-            );
-          } else {
-            repo.addTask(
-              Task(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                title: title,
-                notes: notes,
-                durationMinutes: duration,
-                date: targetDateStr,
-                block: block,
-                createdAt: DateTime.now(),
-              ),
-            );
-          }
-        },
-      ),
-    );
   }
 
   void _showCarryOverActionSheet(List<DateTime> weekDays) {
@@ -314,26 +243,65 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
 
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final buttonBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1F767680);
-    final canPop = Navigator.canPop(context);
+
+    // Active day that takes double space (2x flex)
+    final activeFocusDateStr = _focusedDayDateStr ?? _manuallyExpandedDateStr ?? todayStr;
 
     return CupertinoPageScaffold(
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Top Navigation Bar ──────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-              child: Row(
-                children: [
-                  if (canPop) ...[
+            // ── Top Summary Banner (Gregorian/Hijri, Stats %, Prayers bar, Compact button)
+            WeekHeaderBanner(
+              activeWeekStart: activeWeekStart,
+              isCompactMode: _isCompactWidgetMode,
+              onToggleCompactMode: () {
+                setState(() {
+                  _isCompactWidgetMode = !_isCompactWidgetMode;
+                });
+              },
+              onCarryOverTap: () => _showCarryOverActionSheet(weekDays),
+            ),
+
+            // ── Compact Widget Mode (Images 2 & 3) ───────────────────────────
+            if (_isCompactWidgetMode) ...[
+              Expanded(
+                child: CompactDailyWidget(
+                  onExitCompactMode: () {
+                    setState(() {
+                      _isCompactWidgetMode = false;
+                    });
+                  },
+                ),
+              ),
+            ] else ...[
+              // ── Week Title & Navigation Row ─────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                child: Row(
+                  children: [
+                    // Week Title
+                    Text(
+                      'الأسبوع $weekNumber',
+                      key: const Key('week_title'),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.4,
+                        color: Color(0xFF007AFF),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Next week chevron
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      key: const Key('next_week_button'),
+                      onTap: () => _changeWeek(1),
                       behavior: HitTestBehavior.opaque,
                       child: Container(
-                        width: 36,
-                        height: 36,
-                        margin: const EdgeInsetsDirectional.only(end: 8),
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: buttonBg,
@@ -341,175 +309,109 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                         child: const Center(
                           child: Icon(
                             CupertinoIcons.chevron_right,
-                            size: 20,
-                            color: CupertinoColors.systemBlue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  // Week Title (e.g. "الأسبوع 43")
-                  Expanded(
-                    child: Text(
-                      'الأسبوع $weekNumber',
-                      key: const Key('week_title'),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.5,
-                        color: Color(0xFF007AFF),
-                      ),
-                    ),
-                  ),
-
-                  // Next week chevron (pointing right > towards future)
-                  GestureDetector(
-                    key: const Key('next_week_button'),
-                    onTap: () => _changeWeek(1),
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: buttonBg,
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          CupertinoIcons.chevron_right,
-                          size: 19,
-                          color: CupertinoColors.systemBlue,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Quick jump to current week
-                  if (_weekOffset != 0) ...[
-                    Semantics(
-                      label: 'هذا الأسبوع',
-                      button: true,
-                      child: GestureDetector(
-                        key: const Key('current_week_button'),
-                        onTap: _goToCurrentWeek,
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              CupertinoIcons.calendar_today,
-                              size: 18,
-                              color: CupertinoColors.systemBlue,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-
-                  // Previous week chevron (pointing left < towards past)
-                  GestureDetector(
-                    key: const Key('prev_week_button'),
-                    onTap: () => _changeWeek(-1),
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: buttonBg,
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          CupertinoIcons.chevron_left,
-                          size: 19,
-                          color: CupertinoColors.systemBlue,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Carry Over button (Icon only)
-                  Semantics(
-                    label: 'ترحيل المهام',
-                    button: true,
-                    child: GestureDetector(
-                      key: const Key('carry_over_button'),
-                      onTap: () => _showCarryOverActionSheet(weekDays),
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            CupertinoIcons.arrow_right_arrow_left,
                             size: 18,
                             color: CupertinoColors.systemBlue,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
+                    const SizedBox(width: 8),
 
-                  // Settings button (Opens settings directly from top bar)
-                  Semantics(
-                    label: 'الإعدادات',
-                    button: true,
-                    child: GestureDetector(
-                      key: const Key('settings_button'),
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(builder: (_) => const SettingsScreen()),
-                        );
-                      },
+                    // Quick jump to current week
+                    if (_weekOffset != 0) ...[
+                      Semantics(
+                        label: 'هذا الأسبوع',
+                        button: true,
+                        child: GestureDetector(
+                          key: const Key('current_week_button'),
+                          onTap: _goToCurrentWeek,
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                CupertinoIcons.calendar_today,
+                                size: 17,
+                                color: CupertinoColors.systemBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+
+                    // Previous week chevron
+                    GestureDetector(
+                      key: const Key('prev_week_button'),
+                      onTap: () => _changeWeek(-1),
                       behavior: HitTestBehavior.opaque,
                       child: Container(
-                        width: 36,
-                        height: 36,
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: buttonBg,
                         ),
                         child: const Center(
                           child: Icon(
-                            CupertinoIcons.gear,
-                            size: 20,
+                            CupertinoIcons.chevron_left,
+                            size: 18,
                             color: CupertinoColors.systemBlue,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    const Spacer(),
+
+                    // Hint message
+                    Text(
+                      'اسحب أي مهمة بين الأيام والفترات • انقر على الصلاة لإضافة مهمة',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // ── Seven Columns Weekly Board ──────────────────────────────────
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWideScreen = constraints.maxWidth >= 1500;
-                  const columnSpacing = 10.0;
-                  const horizontalPadding = 16.0;
+              // ── Seven Columns Responsive Layout ─────────────────────────────
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    const columnSpacing = 8.0;
+                    const horizontalPadding = 16.0;
+                    final isVeryNarrow = constraints.maxWidth < 1150;
 
-                  if (isWideScreen) {
-                    // All 7 columns fit on the wide screen side-by-side
+                    if (isVeryNarrow) {
+                      // Narrow desktop/tablet window: Active day expands, non-active collapse
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (int i = 0; i < weekDays.length; i++) ...[
+                              if (i > 0) const SizedBox(width: 6),
+                              _buildResponsiveDayColumn(
+                                dayDate: weekDays[i],
+                                todayStr: todayStr,
+                                activeFocusDateStr: activeFocusDateStr,
+                                isCollapsibleMode: true,
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }
+
+                    // Wide desktop window: All 7 days visible, Active day gets 2x flex space!
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
                       child: Row(
@@ -517,73 +419,91 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
                         children: [
                           for (int i = 0; i < weekDays.length; i++) ...[
                             if (i > 0) const SizedBox(width: columnSpacing),
-                            Expanded(
-                              child: _buildColumnWidget(
-                                index: i,
-                                weekDays: weekDays,
-                                todayStr: todayStr,
-                              ),
+                            _buildResponsiveDayColumn(
+                              dayDate: weekDays[i],
+                              todayStr: todayStr,
+                              activeFocusDateStr: activeFocusDateStr,
+                              isCollapsibleMode: false,
                             ),
                           ],
                         ],
                       ),
                     );
-                  }
-
-                  // Horizontally scrollable on standard desktop/tablet/mobile screens
-                  const columnWidth = 270.0;
-
-                  return SingleChildScrollView(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (int i = 0; i < weekDays.length; i++) ...[
-                          if (i > 0) const SizedBox(width: columnSpacing),
-                          _buildColumnWidget(
-                            index: i,
-                            weekDays: weekDays,
-                            todayStr: todayStr,
-                            width: columnWidth,
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 10),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildColumnWidget({
-    required int index,
-    required List<DateTime> weekDays,
+  Widget _buildResponsiveDayColumn({
+    required DateTime dayDate,
     required String todayStr,
-    double? width,
+    required String activeFocusDateStr,
+    required bool isCollapsibleMode,
   }) {
-    final dayDate = weekDays[index];
     final dateStr = Task.formatDate(dayDate);
     final isToday = (dateStr == todayStr);
+    final isFocusedOrActive = (dateStr == activeFocusDateStr);
 
-    return WeekDayColumn(
-      key: isToday ? _todayKey : ValueKey(dateStr),
-      date: dayDate,
-      isToday: isToday,
-      width: width,
-      onOpenTaskSheet: (task, defaultBlock, date) {
-        _openTaskDetailsSheet(
-          task: task,
-          defaultBlock: defaultBlock,
-          targetDate: date,
+    if (isCollapsibleMode) {
+      // In narrow view: non-active days are collapsed
+      final isCollapsed = !isFocusedOrActive;
+
+      if (isCollapsed) {
+        return WeekDayColumn(
+          key: ValueKey('col_$dateStr'),
+          date: dayDate,
+          isToday: isToday,
+          isCollapsed: true,
+          onExpand: () {
+            setState(() {
+              _manuallyExpandedDateStr = dateStr;
+              _focusedDayDateStr = dateStr;
+            });
+          },
         );
-      },
+      }
+
+      return Expanded(
+        child: WeekDayColumn(
+          key: ValueKey('exp_$dateStr'),
+          date: dayDate,
+          isToday: isToday,
+          isCollapsed: false,
+          onFocusChanged: (hasFocus) {
+            setState(() {
+              _focusedDayDateStr = hasFocus ? dateStr : null;
+            });
+          },
+        ),
+      );
+    }
+
+    // Wide screen view: all 7 columns open, active gets 2x flex!
+    final flex = isFocusedOrActive ? 2 : 1;
+
+    return Expanded(
+      flex: flex,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeInOut,
+        child: WeekDayColumn(
+          key: ValueKey('day_$dateStr'),
+          date: dayDate,
+          isToday: isToday,
+          isCollapsed: false,
+          onFocusChanged: (hasFocus) {
+            setState(() {
+              _focusedDayDateStr = hasFocus ? dateStr : null;
+            });
+          },
+        ),
+      ),
     );
   }
 }
