@@ -8,7 +8,7 @@ import 'package:jimy/features/settings/presentation/settings_screen.dart';
 import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/features/week/presentation/screens/week_start_settings_screen.dart';
 import 'package:jimy/features/week/presentation/week_screen.dart';
-import 'package:jimy/features/week/presentation/widgets/week_day_card.dart';
+import 'package:jimy/features/week/presentation/widgets/week_day_column.dart';
 import 'package:jimy/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,8 +45,8 @@ void main() {
     );
   }
 
-  testWidgets('WeekScreen renders nav bar, 7 day cards, and handles week navigation', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(800, 2400);
+  testWidgets('WeekScreen renders nav bar, 7 day columns, and handles week navigation', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(2400, 1200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() => tester.view.resetPhysicalSize());
 
@@ -54,13 +54,13 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Week Title is visible (e.g. "الأسبوع 43")
-    expect(find.textContaining('الأسبوع'), findsOneWidget);
+    expect(find.byKey(const Key('week_title')), findsOneWidget);
 
     // Verify Carry Over button is present
     expect(find.byKey(const Key('carry_over_button')), findsOneWidget);
 
-    // Verify 7 day cards are rendered
-    expect(find.byType(WeekDayCard), findsNWidgets(7));
+    // Verify 7 day columns are rendered
+    expect(find.byType(WeekDayColumn), findsNWidgets(7));
 
     // Tap next week button
     await tester.tap(find.byKey(const Key('next_week_button')));

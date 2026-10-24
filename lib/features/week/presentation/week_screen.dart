@@ -4,11 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:jimy/core/theme/prayer_block_theme.dart';
 import 'package:jimy/core/widgets/task_details_sheet.dart';
+import 'package:jimy/features/settings/presentation/settings_screen.dart';
 import 'package:jimy/features/tasks/domain/models/task_model.dart';
 import 'package:jimy/features/tasks/presentation/controllers/tasks_providers.dart';
 import 'package:jimy/features/week/domain/week_calculator.dart';
 import 'package:jimy/features/week/presentation/controllers/week_settings_controller.dart';
-import 'package:jimy/features/week/presentation/widgets/week_day_card.dart';
+import 'package:jimy/features/week/presentation/widgets/week_day_column.dart';
 
 class WeekScreen extends ConsumerStatefulWidget {
   const WeekScreen({super.key});
@@ -19,7 +20,6 @@ class WeekScreen extends ConsumerStatefulWidget {
 
 class _WeekScreenState extends ConsumerState<WeekScreen> {
   int _weekOffset = 0;
-  final Set<String> _expandedDates = {};
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _todayKey = GlobalKey();
   bool _hasScrolledToToday = false;
@@ -27,10 +27,9 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
   @override
   void initState() {
     super.initState();
-    final todayStr = Task.formatDate(DateTime.now());
-    _expandedDates.add(todayStr);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _seedStarterTasksIfEmpty();
       _scrollToTodayIfNeeded();
     });
   }
@@ -39,6 +38,80 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _seedStarterTasksIfEmpty() {
+    final repo = ref.read(taskRepositoryProvider);
+    if (repo.box.isEmpty) {
+      final now = DateTime.now();
+      final todayStr = Task.formatDate(now);
+      final tomorrowStr = Task.formatDate(DateTime(now.year, now.month, now.day + 1));
+
+      final starterTasks = [
+        Task(
+          id: '1',
+          title: 'قيام الليل وركعتي الفجر',
+          isDone: false,
+          date: todayStr,
+          block: PrayerBlockType.beforeFajr,
+          createdAt: now.subtract(const Duration(hours: 5)),
+        ),
+        Task(
+          id: '2',
+          title: 'أذكار الصباح وقراءة ورد القرآن',
+          isDone: true,
+          date: todayStr,
+          block: PrayerBlockType.afterFajr,
+          createdAt: now.subtract(const Duration(hours: 4)),
+        ),
+        Task(
+          id: '3',
+          title: 'شراء خبز وإفطار مع العائلة',
+          isDone: false,
+          date: todayStr,
+          block: PrayerBlockType.afterFajr,
+          createdAt: now.subtract(const Duration(hours: 3)),
+        ),
+        Task(
+          id: '4',
+          title: 'جلسة تركيز ومراجعة مهام العمل',
+          notes: 'إعداد خطة الأسبوع وتجهيز الأولويات',
+          isDone: false,
+          date: todayStr,
+          block: PrayerBlockType.afterDhuhr,
+          createdAt: now.subtract(const Duration(hours: 2)),
+        ),
+        Task(
+          id: '5',
+          title: 'مشي لمدة نصف ساعة وأذكار المساء',
+          isDone: false,
+          date: todayStr,
+          block: PrayerBlockType.afterAsr,
+          createdAt: now.subtract(const Duration(hours: 1)),
+        ),
+        Task(
+          id: '6',
+          title: 'مراجعة التقرير الأسبوعي',
+          notes: 'إرسال الملف النهائي للفريق',
+          isDone: false,
+          date: tomorrowStr,
+          block: PrayerBlockType.afterDhuhr,
+          createdAt: now,
+        ),
+        Task(
+          id: '7',
+          title: 'قراءة ورد ما قبل النوم',
+          isDone: false,
+          date: tomorrowStr,
+          block: PrayerBlockType.afterIsha,
+          createdAt: now,
+        ),
+      ];
+
+      for (final t in starterTasks) {
+        repo.addTask(t);
+      }
+    }
   }
 
   void _scrollToTodayIfNeeded() {
@@ -58,32 +131,23 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     HapticFeedback.selectionClick();
     setState(() {
       _weekOffset += delta;
-      // If returning to current week, keep today expanded
-      if (_weekOffset == 0) {
-        _expandedDates.add(Task.formatDate(DateTime.now()));
-      }
+      _hasScrolledToToday = false;
     });
+    if (_weekOffset == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToTodayIfNeeded();
+      });
+    }
   }
 
   void _goToCurrentWeek() {
     HapticFeedback.mediumImpact();
     setState(() {
       _weekOffset = 0;
-      _expandedDates.add(Task.formatDate(DateTime.now()));
       _hasScrolledToToday = false;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToTodayIfNeeded();
-    });
-  }
-
-  void _toggleDayExpansion(String dateStr) {
-    setState(() {
-      if (_expandedDates.contains(dateStr)) {
-        _expandedDates.remove(dateStr);
-      } else {
-        _expandedDates.add(dateStr);
-      }
     });
   }
 
@@ -132,55 +196,6 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     );
   }
 
-  void _showMoveTaskSheet(Task task, List<DateTime> weekDays) {
-    final now = DateTime.now();
-    final todayStr = Task.formatDate(now);
-    final tomorrowStr = Task.formatDate(now.add(const Duration(days: 1)));
-    final repo = ref.read(taskRepositoryProvider);
-
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: Text('نقل مهمة: ${task.title}'),
-        message: const Text('اختر اليوم الذي ترغب في نقل المهمة إليه'),
-        actions: [
-          if (task.date != todayStr)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                repo.moveTask(task.id, newDate: todayStr, newBlock: task.block);
-              },
-              child: const Text('نقل إلى اليوم'),
-            ),
-          if (task.date != tomorrowStr)
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                repo.moveTask(task.id, newDate: tomorrowStr, newBlock: task.block);
-              },
-              child: const Text('نقل إلى غداً'),
-            ),
-          for (final day in weekDays)
-            if (Task.formatDate(day) != task.date &&
-                Task.formatDate(day) != todayStr &&
-                Task.formatDate(day) != tomorrowStr)
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  repo.moveTask(task.id, newDate: Task.formatDate(day), newBlock: task.block);
-                },
-                child: Text('نقل إلى ${DateFormat('EEEE (d MMMM)', 'ar_EG').format(day)}'),
-              ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          isDefaultAction: true,
-          onPressed: () => Navigator.pop(context),
-          child: const Text('إلغاء'),
-        ),
-      ),
-    );
-  }
-
   void _showCarryOverActionSheet(List<DateTime> weekDays) {
     final now = DateTime.now();
     final todayDayName = DateFormat('EEEE', 'ar_EG').format(now);
@@ -198,7 +213,7 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
               Navigator.pop(context);
               _handleCarryOverToToday(weekDays, todayDayName);
             },
-            child: Text('ترحيل إلى اليوم ($todayDayName)'),
+            child: const Text('ترحيل المهام غير المنجزة إلى اليوم'),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
@@ -210,29 +225,21 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     );
   }
 
-  Future<void> _handleCarryOverToToday(
-    List<DateTime> weekDays,
-    String todayDayName,
-  ) async {
+  void _handleCarryOverToToday(List<DateTime> weekDays, String todayDayName) {
     final now = DateTime.now();
-    final todayStr = Task.formatDate(now);
+    final todayDate = DateTime(now.year, now.month, now.day);
+    final todayStr = Task.formatDate(todayDate);
     final repo = ref.read(taskRepositoryProvider);
 
-    // Filter past days in the week that are strictly before today
-    final pastDays = weekDays.where((d) {
-      final dStr = Task.formatDate(d);
-      return dStr.compareTo(todayStr) < 0;
-    }).toList();
-
-    // Query all unfinished tasks from those past days
     final unfinishedTasks = <Task>[];
-    for (final day in pastDays) {
-      final dStr = Task.formatDate(day);
-      final tasks = repo.getTasksForDay(dStr);
-      unfinishedTasks.addAll(tasks.where((t) => !t.isDone));
+    for (final day in weekDays) {
+      final calendarDay = DateTime(day.year, day.month, day.day);
+      if (calendarDay.isBefore(todayDate)) {
+        final dayStr = Task.formatDate(calendarDay);
+        final tasks = repo.getTasksForDay(dayStr);
+        unfinishedTasks.addAll(tasks.where((t) => !t.isDone));
+      }
     }
-
-    if (!mounted) return;
 
     if (unfinishedTasks.isEmpty) {
       showCupertinoDialog<void>(
@@ -303,7 +310,6 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
       currentWeekStart.day + (_weekOffset * 7),
     );
     final weekDays = WeekCalculator.getWeekDays(activeWeekStart);
-
     final weekNumber = WeekCalculator.getWeekNumber(activeWeekStart);
 
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
@@ -311,206 +317,273 @@ class _WeekScreenState extends ConsumerState<WeekScreen> {
     final canPop = Navigator.canPop(context);
 
     return CupertinoPageScaffold(
-      child: GestureDetector(
-        // Horizontal swipe gesture to change week (RTL-aware)
-        onHorizontalDragEnd: (details) {
-          final velocity = details.primaryVelocity ?? 0.0;
-          if (velocity < -300) {
-            // Drag towards left in RTL -> next week
-            _changeWeek(1);
-          } else if (velocity > 300) {
-            // Drag towards right in RTL -> previous week
-            _changeWeek(-1);
-          }
-        },
-        behavior: HitTestBehavior.translucent,
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            // Crisp iOS Header (Minimal, clean, icon-only actions)
-            SliverToBoxAdapter(
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: Row(
-                    children: [
-                      if (canPop) ...[
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            margin: const EdgeInsetsDirectional.only(end: 8),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: buttonBg,
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                CupertinoIcons.chevron_right,
-                                size: 20,
-                                color: CupertinoColors.systemBlue,
-                              ),
-                            ),
-                          ),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Top Navigation Bar ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+              child: Row(
+                children: [
+                  if (canPop) ...[
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        margin: const EdgeInsetsDirectional.only(end: 8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: buttonBg,
                         ),
-                      ],
-
-                      // Week Number Title (e.g. "الأسبوع 43")
-                      Expanded(
-                        child: Text(
-                          'الأسبوع $weekNumber',
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                            color: Color(0xFF007AFF),
+                        child: const Center(
+                          child: Icon(
+                            CupertinoIcons.chevron_right,
+                            size: 20,
+                            color: CupertinoColors.systemBlue,
                           ),
                         ),
                       ),
+                    ),
+                  ],
 
-                      // Next week chevron (pointing right > towards future)
-                      GestureDetector(
-                        key: const Key('next_week_button'),
-                        onTap: () => _changeWeek(1),
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: buttonBg,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              CupertinoIcons.chevron_right,
-                              size: 19,
-                              color: CupertinoColors.systemBlue,
-                            ),
-                          ),
-                        ),
+                  // Week Title (e.g. "الأسبوع 43")
+                  Expanded(
+                    child: Text(
+                      'الأسبوع $weekNumber',
+                      key: const Key('week_title'),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                        color: Color(0xFF007AFF),
                       ),
-                      const SizedBox(width: 8),
-
-                      // Quick jump to current week (Icon only - visible when offset != 0)
-                      if (_weekOffset != 0) ...[
-                        Semantics(
-                          label: 'هذا الأسبوع',
-                          button: true,
-                          child: GestureDetector(
-                            key: const Key('current_week_button'),
-                            onTap: _goToCurrentWeek,
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  CupertinoIcons.calendar_today,
-                                  size: 18,
-                                  color: CupertinoColors.systemBlue,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-
-                      // Previous week chevron (pointing left < towards past)
-                      GestureDetector(
-                        key: const Key('prev_week_button'),
-                        onTap: () => _changeWeek(-1),
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: buttonBg,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              CupertinoIcons.chevron_left,
-                              size: 19,
-                              color: CupertinoColors.systemBlue,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Carry Over icon button (Icon only)
-                      Semantics(
-                        label: 'ترحيل المهام',
-                        button: true,
-                        child: GestureDetector(
-                          key: const Key('carry_over_button'),
-                          onTap: () => _showCarryOverActionSheet(weekDays),
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                CupertinoIcons.arrow_right_arrow_left,
-                                size: 18,
-                                color: CupertinoColors.systemBlue,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
 
-            // Seven Day Cards in a Vertical List
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 90),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final dayDate = weekDays[index];
-                    final dateStr = Task.formatDate(dayDate);
-                    final isToday = (dateStr == todayStr);
-                    final isExpanded = _expandedDates.contains(dateStr);
+                  // Next week chevron (pointing right > towards future)
+                  GestureDetector(
+                    key: const Key('next_week_button'),
+                    onTap: () => _changeWeek(1),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: buttonBg,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 19,
+                          color: CupertinoColors.systemBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
 
-                    return WeekDayCard(
-                      key: isToday ? _todayKey : ValueKey(dateStr),
-                      date: dayDate,
-                      isToday: isToday,
-                      isExpanded: isExpanded,
-                      onToggleExpand: () => _toggleDayExpansion(dateStr),
-                      onOpenTaskSheet: (task, defaultBlock, date) {
-                        _openTaskDetailsSheet(
-                          task: task,
-                          defaultBlock: defaultBlock,
-                          targetDate: date,
+                  // Quick jump to current week
+                  if (_weekOffset != 0) ...[
+                    Semantics(
+                      label: 'هذا الأسبوع',
+                      button: true,
+                      child: GestureDetector(
+                        key: const Key('current_week_button'),
+                        onTap: _goToCurrentWeek,
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              CupertinoIcons.calendar_today,
+                              size: 18,
+                              color: CupertinoColors.systemBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+
+                  // Previous week chevron (pointing left < towards past)
+                  GestureDetector(
+                    key: const Key('prev_week_button'),
+                    onTap: () => _changeWeek(-1),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: buttonBg,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          CupertinoIcons.chevron_left,
+                          size: 19,
+                          color: CupertinoColors.systemBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Carry Over button (Icon only)
+                  Semantics(
+                    label: 'ترحيل المهام',
+                    button: true,
+                    child: GestureDetector(
+                      key: const Key('carry_over_button'),
+                      onTap: () => _showCarryOverActionSheet(weekDays),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: CupertinoColors.systemBlue.withValues(alpha: 0.16),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            CupertinoIcons.arrow_right_arrow_left,
+                            size: 18,
+                            color: CupertinoColors.systemBlue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Settings button (Opens settings directly from top bar)
+                  Semantics(
+                    label: 'الإعدادات',
+                    button: true,
+                    child: GestureDetector(
+                      key: const Key('settings_button'),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(builder: (_) => const SettingsScreen()),
                         );
                       },
-                      onMoveTask: (task) => _showMoveTaskSheet(task, weekDays),
-                    );
-                  },
-                  childCount: weekDays.length,
-                ),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: buttonBg,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            CupertinoIcons.gear,
+                            size: 20,
+                            color: CupertinoColors.systemBlue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            // ── Seven Columns Weekly Board ──────────────────────────────────
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWideScreen = constraints.maxWidth >= 1500;
+                  const columnSpacing = 10.0;
+                  const horizontalPadding = 16.0;
+
+                  if (isWideScreen) {
+                    // All 7 columns fit on the wide screen side-by-side
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (int i = 0; i < weekDays.length; i++) ...[
+                            if (i > 0) const SizedBox(width: columnSpacing),
+                            Expanded(
+                              child: _buildColumnWidget(
+                                index: i,
+                                weekDays: weekDays,
+                                todayStr: todayStr,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Horizontally scrollable on standard desktop/tablet/mobile screens
+                  const columnWidth = 270.0;
+
+                  return SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (int i = 0; i < weekDays.length; i++) ...[
+                          if (i > 0) const SizedBox(width: columnSpacing),
+                          _buildColumnWidget(
+                            index: i,
+                            weekDays: weekDays,
+                            todayStr: todayStr,
+                            width: columnWidth,
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildColumnWidget({
+    required int index,
+    required List<DateTime> weekDays,
+    required String todayStr,
+    double? width,
+  }) {
+    final dayDate = weekDays[index];
+    final dateStr = Task.formatDate(dayDate);
+    final isToday = (dateStr == todayStr);
+
+    return WeekDayColumn(
+      key: isToday ? _todayKey : ValueKey(dateStr),
+      date: dayDate,
+      isToday: isToday,
+      width: width,
+      onOpenTaskSheet: (task, defaultBlock, date) {
+        _openTaskDetailsSheet(
+          task: task,
+          defaultBlock: defaultBlock,
+          targetDate: date,
+        );
+      },
     );
   }
 }

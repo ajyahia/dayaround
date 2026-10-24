@@ -27,7 +27,11 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('App renders Today screen cleanly and navigates to appearance settings', (WidgetTester tester) async {
+  testWidgets('App renders Week screen cleanly and navigates to appearance settings', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -38,11 +42,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify Today screen is visible with smart cards, action buttons, and sample sections
-    expect(find.text('اليوم'), findsWidgets);
-    expect(find.text('مهام اليوم'), findsOneWidget);
+    // Verify Week board is visible with week title and action buttons
+    expect(find.textContaining('الأسبوع'), findsWidgets);
     expect(find.byKey(const Key('settings_button')), findsOneWidget);
-    expect(find.byKey(const Key('week_button')), findsOneWidget);
 
     // Tap on Settings button in the top navigation bar
     await tester.tap(find.byKey(const Key('settings_button')));

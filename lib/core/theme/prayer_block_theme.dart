@@ -69,3 +69,12 @@ class PrayerBlockInfo {
     ),
   ];
 }
+
+extension PrayerBlockTypeExtension on PrayerBlockType {
+  PrayerBlockInfo get info =>
+      PrayerBlockInfo.allBlocks.firstWhere((b) => b.type == this);
+
+  String get label => info.label;
+  Color get color => info.color;
+  IconData get icon => info.icon;
+}

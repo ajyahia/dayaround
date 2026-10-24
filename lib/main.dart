@@ -43,6 +43,14 @@ class JimyApp extends ConsumerWidget {
           final isDark = themeMode == AppThemeMode.dark ||
               (themeMode == AppThemeMode.system &&
                   MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+          final isWide = MediaQuery.sizeOf(context).width > 700;
+
+          if (isWide) {
+            return ColoredBox(
+              color: isDark ? const Color(0xFF141416) : const Color(0xFFE5E5EA),
+              child: child,
+            );
+          }
 
           return ColoredBox(
             color: isDark ? const Color(0xFF141416) : const Color(0xFFE5E5EA),
