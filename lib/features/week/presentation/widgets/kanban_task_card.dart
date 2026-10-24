@@ -105,13 +105,13 @@ class _KanbanTaskCardState extends ConsumerState<KanbanTaskCard>
   @override
   Widget build(BuildContext context) {
     final block = widget.task.block;
-    final cardBg = CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
-    final labelColor = CupertinoColors.label.resolveFrom(context);
-    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+    final cardBg = isDark ? const Color(0xFF1E293B) : CupertinoColors.white;
+    final labelColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+    final secondaryColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
     final borderColor = isDark
-        ? const Color(0x24FFFFFF)
-        : const Color(0x15000000);
+        ? const Color(0xFF334155)
+        : const Color(0xFFE2E8F0);
 
     final cardContent = Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
@@ -123,12 +123,12 @@ class _KanbanTaskCardState extends ConsumerState<KanbanTaskCard>
           color: widget.task.isDone
               ? block.color.withValues(alpha: 0.35)
               : borderColor,
-          width: 0.7,
+          width: 0.8,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? const Color(0x28000000) : const Color(0x08000000),
-            blurRadius: 3,
+            color: isDark ? const Color(0x30000000) : const Color(0x06000000),
+            blurRadius: 4,
             offset: const Offset(0, 1),
           ),
         ],

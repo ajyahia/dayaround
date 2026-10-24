@@ -13,7 +13,7 @@ import 'package:jimy/features/week/presentation/widgets/progress_ring.dart';
 
 /// Single day column within the weekly board.
 /// Features clean header (without redundant + button), prayer blocks with start times only,
-/// click-on-prayer inline task addition, collapsible narrow state, and Drag & Drop.
+/// click-on-prayer inline task addition, and Drag & Drop.
 class WeekDayColumn extends ConsumerStatefulWidget {
   final DateTime date;
   final bool isToday;
@@ -51,7 +51,6 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
         if (node.hasFocus) {
           widget.onFocusChanged?.call(true);
         } else {
-          // If no focus remains on this day
           final hasAnyFocus = _focusNodes.values.any((f) => f.hasFocus);
           if (!hasAnyFocus) {
             widget.onFocusChanged?.call(false);
@@ -102,21 +101,20 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
 
     controller.clear();
     HapticFeedback.mediumImpact();
-    // Keep focus ready for next task
   }
 
   @override
   Widget build(BuildContext context) {
     final dateStr = Task.formatDate(widget.date);
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
-    final columnBg = isDark
-        ? const Color(0xFF1B1B1E)
-        : CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context);
-    final labelColor = CupertinoColors.label.resolveFrom(context);
-    final secondaryColor = CupertinoColors.secondaryLabel.resolveFrom(context);
+    
+    // High-contrast slate theme
+    final columnBg = isDark ? const Color(0xFF131D2D) : CupertinoColors.white;
+    final labelColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+    final secondaryColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
     final borderColor = widget.isToday
-        ? CupertinoColors.activeBlue
-        : (isDark ? const Color(0x28FFFFFF) : const Color(0x18000000));
+        ? const Color(0xFF38BDF8)
+        : (isDark ? const Color(0xFF243347) : const Color(0xFFE2E8F0));
 
     // Watch tasks for this specific date
     final asyncTasks = ref.watch(tasksForDayProvider(dateStr));
@@ -136,7 +134,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
     final calculatedBlocks = ref.watch(dayBlocksProvider(widget.date));
     final timeFormat = DateFormat('h:mm a', 'ar_EG');
 
-    // ── COLLAPSED STATE (For responsive narrow screens) ──────────────────
+    // Backward-compatible collapsed state if explicitly asked
     if (widget.isCollapsed) {
       return GestureDetector(
         onTap: () {
@@ -151,8 +149,8 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
             color: columnBg,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: widget.isToday ? CupertinoColors.activeBlue : borderColor,
-              width: widget.isToday ? 1.8 : 0.8,
+              color: widget.isToday ? const Color(0xFF38BDF8) : borderColor,
+              width: widget.isToday ? 2.0 : 0.8,
             ),
           ),
           child: Column(
@@ -174,7 +172,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: widget.isToday ? CupertinoColors.activeBlue : labelColor,
+                    color: widget.isToday ? const Color(0xFF38BDF8) : labelColor,
                   ),
                 ),
               ),
@@ -186,7 +184,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                         height: 8,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: CupertinoColors.activeBlue,
+                          color: Color(0xFF38BDF8),
                         ),
                       )
                     : const SizedBox(height: 8),
@@ -197,12 +195,11 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
       );
     }
 
-    // ── EXPANDED COLUMN ──────────────────────────────────────────────────
     final columnContent = Container(
       width: widget.width,
       decoration: BoxDecoration(
         color: columnBg,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: borderColor,
           width: widget.isToday ? 2.0 : 0.8,
@@ -210,9 +207,9 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
         boxShadow: [
           BoxShadow(
             color: widget.isToday
-                ? const Color(0x30007AFF)
+                ? const Color(0x3538BDF8)
                 : (isDark ? const Color(0x35000000) : const Color(0x0A000000)),
-            blurRadius: widget.isToday ? 10 : 4,
+            blurRadius: widget.isToday ? 12 : 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -222,16 +219,16 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
         children: [
           // ── Day Header (Without redundant + button!) ─────────────────────
           Container(
-            padding: const EdgeInsets.fromLTRB(10, 9, 10, 7),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
             decoration: BoxDecoration(
               color: widget.isToday
-                  ? CupertinoColors.activeBlue.withValues(alpha: isDark ? 0.20 : 0.08)
-                  : (isDark ? const Color(0x14FFFFFF) : const Color(0x06000000)),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                  ? (isDark ? const Color(0xFF1E3A5F) : const Color(0xFFE0F2FE))
+                  : (isDark ? const Color(0xFF192537) : const Color(0xFFF8FAFC)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
               border: Border(
                 bottom: BorderSide(
-                  color: isDark ? const Color(0x1CFFFFFF) : const Color(0x10000000),
-                  width: 0.6,
+                  color: isDark ? const Color(0xFF26354B) : const Color(0xFFE2E8F0),
+                  width: 0.8,
                 ),
               ),
             ),
@@ -243,25 +240,25 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                     Text(
                       dayName,
                       style: TextStyle(
-                        fontSize: 15.5,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: widget.isToday ? CupertinoColors.activeBlue : labelColor,
+                        color: widget.isToday ? const Color(0xFF38BDF8) : labelColor,
                       ),
                     ),
                     if (widget.isToday) ...[
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: CupertinoColors.activeBlue,
+                          color: const Color(0xFF38BDF8),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
                           'اليوم',
                           style: TextStyle(
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: CupertinoColors.white,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                       ),
@@ -272,8 +269,8 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                     ProgressRing(
                       done: doneTasks,
                       total: totalTasks,
-                      size: 24,
-                      strokeWidth: 2.8,
+                      size: 26,
+                      strokeWidth: 3.0,
                     ),
                   ],
                 ),
@@ -283,7 +280,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                 Text(
                   '$gregorianDate • $hijriDate',
                   style: TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 11,
                     color: secondaryColor,
                   ),
                 ),
@@ -294,7 +291,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
           // ── Scrollable Prayer Blocks Inside Day Column ──────────────────
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 5),
               children: [
                 for (final blockType in PrayerBlockType.values)
                   _buildPrayerBlockSection(
@@ -331,9 +328,9 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
             border: isHovered
-                ? Border.all(color: CupertinoColors.activeBlue, width: 2.2)
+                ? Border.all(color: const Color(0xFF38BDF8), width: 2.2)
                 : null,
           ),
           child: columnContent,
@@ -356,7 +353,7 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
     final focusNode = _focusNodes[blockType]!;
     final isAddingActive = _activeAddingBlock == blockType || focusNode.hasFocus;
 
-    // DragTarget specific to this prayer block!
+    // DragTarget specific to this prayer block
     return DragTarget<Task>(
       onWillAcceptWithDetails: (details) => true,
       onAcceptWithDetails: (details) {
@@ -376,14 +373,14 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
           margin: const EdgeInsets.symmetric(vertical: 2.5),
           decoration: BoxDecoration(
             color: isHovered
-                ? blockType.color.withValues(alpha: isDark ? 0.25 : 0.14)
-                : (isDark ? const Color(0x0EFFFFFF) : const Color(0x05000000)),
+                ? blockType.color.withValues(alpha: isDark ? 0.24 : 0.14)
+                : (isDark ? const Color(0xFF182333) : const Color(0xFFF8FAFC)),
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
               color: isHovered
                   ? blockType.color
-                  : (isDark ? const Color(0x18FFFFFF) : const Color(0x0D000000)),
-              width: isHovered ? 1.6 : 0.6,
+                  : (isDark ? const Color(0xFF27364B) : const Color(0xFFEEF2F6)),
+              width: isHovered ? 1.6 : 0.7,
             ),
           ),
           child: Column(
@@ -395,13 +392,13 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                 onTap: () => _activateAdding(blockType),
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 5, 8, 4),
+                  padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
                   child: Row(
                     children: [
                       // Colored dot
                       Container(
-                        width: 7.5,
-                        height: 7.5,
+                        width: 8,
+                        height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: blockType.color,
@@ -413,8 +410,8 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                       Text(
                         blockType.label,
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
                           color: blockType.color,
                         ),
                       ),
@@ -426,9 +423,9 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                         Text(
                           startTimeStr,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w500,
-                            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                           ),
                         ),
                     ],
@@ -448,7 +445,6 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
               ],
 
               // ── Inline Task Input Field ────────────────────────────────────
-              // Always accessible: typing directly into the block adds a task!
               Padding(
                 padding: const EdgeInsets.fromLTRB(6, 2, 6, 5),
                 child: Directionality(
@@ -458,26 +454,28 @@ class _WeekDayColumnState extends ConsumerState<WeekDayColumn> {
                     focusNode: focusNode,
                     placeholder: '+ إضافة مهمة...',
                     placeholderStyle: TextStyle(
-                      fontSize: 11,
+                      fontSize: 11.5,
                       color: isAddingActive
-                          ? blockType.color.withValues(alpha: 0.7)
-                          : CupertinoColors.secondaryLabel.resolveFrom(context).withValues(alpha: 0.5),
+                          ? blockType.color.withValues(alpha: 0.8)
+                          : (isDark
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF94A3B8)),
                     ),
                     style: TextStyle(
-                      fontSize: 12,
-                      color: CupertinoColors.label.resolveFrom(context),
+                      fontSize: 12.5,
+                      color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     decoration: BoxDecoration(
                       color: isAddingActive
-                          ? (isDark ? const Color(0x22FFFFFF) : const Color(0x12000000))
-                          : (isDark ? const Color(0x0CFFFFFF) : const Color(0x04000000)),
-                      borderRadius: BorderRadius.circular(7),
+                          ? (isDark ? const Color(0xFF1E293B) : CupertinoColors.white)
+                          : (isDark ? const Color(0xFF15202E) : const Color(0xFFF1F5F9)),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: isAddingActive
                             ? blockType.color
-                            : (isDark ? const Color(0x12FFFFFF) : const Color(0x08000000)),
-                        width: isAddingActive ? 1.2 : 0.5,
+                            : (isDark ? const Color(0xFF2A394E) : const Color(0xFFE2E8F0)),
+                        width: isAddingActive ? 1.4 : 0.6,
                       ),
                     ),
                     onSubmitted: (_) => _submitNewTask(blockType),

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,33 +10,33 @@ enum AppThemeMode {
 }
 
 class AppTheme {
-  static const Color accentColor = CupertinoColors.systemBlue;
-  static const Color destructiveColor = CupertinoColors.systemRed;
+  static const Color accentColor = Color(0xFF38BDF8); // Vibrant sky blue
+  static const Color destructiveColor = Color(0xFFEF4444);
 
-  static String? get webFontFamily =>
-      kIsWeb ? GoogleFonts.ibmPlexSansArabic().fontFamily : null;
+  /// Beautiful Arabic typography with Tajawal font
+  static String? get fontFamily => GoogleFonts.tajawal().fontFamily;
 
   static CupertinoThemeData get lightTheme {
-    final font = webFontFamily;
+    final font = fontFamily;
     return CupertinoThemeData(
       brightness: Brightness.light,
-      primaryColor: accentColor,
-      scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
-      barBackgroundColor: const Color(0xE6F2F2F7),
+      primaryColor: const Color(0xFF0284C7),
+      scaffoldBackgroundColor: const Color(0xFFF1F5F9), // Slate 100
+      barBackgroundColor: const Color(0xF2FFFFFF),
       textTheme: CupertinoTextThemeData(
         textStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 17,
-          color: CupertinoColors.label,
+          fontSize: 16,
+          color: const Color(0xFF0F172A),
         ),
         navLargeTitleTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 34,
+          fontSize: 32,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.4,
-          color: CupertinoColors.label,
+          color: const Color(0xFF0F172A),
         ),
         navTitleTextStyle: TextStyle(
           inherit: false,
@@ -45,12 +44,12 @@ class AppTheme {
           fontSize: 17,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.4,
-          color: CupertinoColors.label,
+          color: const Color(0xFF0F172A),
         ),
         tabLabelTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -58,26 +57,26 @@ class AppTheme {
   }
 
   static CupertinoThemeData get darkTheme {
-    final font = webFontFamily;
+    final font = fontFamily;
     return CupertinoThemeData(
       brightness: Brightness.dark,
-      primaryColor: accentColor,
-      scaffoldBackgroundColor: CupertinoColors.black,
-      barBackgroundColor: const Color(0xE61C1C1E),
+      primaryColor: const Color(0xFF38BDF8),
+      scaffoldBackgroundColor: const Color(0xFF0F172A), // Premium Dark Slate 900
+      barBackgroundColor: const Color(0xF01E293B),
       textTheme: CupertinoTextThemeData(
         textStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 17,
-          color: CupertinoColors.label,
+          fontSize: 16,
+          color: const Color(0xFFF8FAFC), // High-contrast clean off-white
         ),
         navLargeTitleTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 34,
+          fontSize: 32,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.4,
-          color: CupertinoColors.white,
+          color: const Color(0xFFF8FAFC),
         ),
         navTitleTextStyle: TextStyle(
           inherit: false,
@@ -85,12 +84,12 @@ class AppTheme {
           fontSize: 17,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.4,
-          color: CupertinoColors.white,
+          color: const Color(0xFFF8FAFC),
         ),
         tabLabelTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -98,20 +97,20 @@ class AppTheme {
   }
 
   static CupertinoThemeData get systemTheme {
-    final font = webFontFamily;
+    final font = fontFamily;
     return CupertinoThemeData(
-      primaryColor: accentColor,
+      primaryColor: const Color(0xFF0284C7),
       textTheme: CupertinoTextThemeData(
         textStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 17,
+          fontSize: 16,
           color: CupertinoColors.label,
         ),
         navLargeTitleTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 34,
+          fontSize: 32,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.4,
         ),
@@ -125,7 +124,7 @@ class AppTheme {
         tabLabelTextStyle: TextStyle(
           inherit: false,
           fontFamily: font,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
       ),

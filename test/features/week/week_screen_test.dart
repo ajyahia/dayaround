@@ -88,6 +88,29 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('WeekScreen renders responsive single day view on narrow screen with navigation', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
+    await tester.pumpWidget(buildTestApp(const WeekScreen()));
+    await tester.pumpAndSettle();
+
+    // Verify next/prev day buttons are present
+    expect(find.byKey(const Key('next_day_button')), findsOneWidget);
+    expect(find.byKey(const Key('prev_day_button')), findsOneWidget);
+
+    // Only 1 full Day column is rendered on narrow screens (no squished collapsed strips)
+    expect(find.byType(WeekDayColumn), findsOneWidget);
+
+    // Tap next day button
+    await tester.tap(find.byKey(const Key('next_day_button')));
+    await tester.pumpAndSettle();
+
+    // Still exactly 1 full day column rendered
+    expect(find.byType(WeekDayColumn), findsOneWidget);
+  });
+
   testWidgets('Settings screen contains Week Start setting and allows selection', (WidgetTester tester) async {
     await tester.pumpWidget(buildTestApp(const SettingsScreen()));
     await tester.pumpAndSettle();
